@@ -48,6 +48,11 @@ public:
 
     }
 
+    void remove(const T &key) {
+        recRemoval(root, NULL, key);
+        size--;
+    }
+
 
 private:
     void recInsert(Node *in, Node *curr) {
@@ -233,6 +238,68 @@ private:
         if (N->leftSon == NULL)
             return -1 - N->rightSon->height;
         return (N->leftSon->height) - (N->rightSon->height);
+    }
+
+    void recRemoval(Node *n, Node *f, const T &key) {
+        if (n == NULL)
+            return;
+        if (n->key < key)
+            recRemoval(n->rightSon, n, key);
+        else if (n->key > key)
+            recRemoval(n->leftSon, n, key);
+        else if (n->counter>1){
+            n->counter--;
+            return;
+        }
+        else if (n->leftSon == NULL && n->rightSon == NULL) {
+            if (f != NULL) {
+                if (f->leftSon == n) {
+                    f->leftSon = NULL;
+                } else if (f->rightSon == n) {
+                    f->rightSon = NULL;
+                }
+                delete (n);
+                f->rank= calcRank(f);
+                return;
+            } else {
+
+                delete (n);
+                root = NULL;
+                return;
+            }
+        } else if (n->leftSon == NULL) {
+            Node *temp = n->rightSon;
+            n->rightSon = temp->rightSon;
+            n->leftSon = temp->leftSon;
+            n->key =T(temp->key);
+            n->counter= temp->counter;
+            delete (temp);
+            n->rank= calcRank(n);
+        } else if (n->rightSon == NULL) {
+            Node *temp = n->leftSon;
+            n->rightSon = temp->rightSon;
+            n->leftSon = temp->leftSon;
+            n->key = T(temp->key);
+            n->counter= temp->counter;
+            delete (temp);
+            n->rank= calcRank(n);
+        } else {
+            Node *temp = n->rightSon;
+            while (temp->leftSon != NULL) {
+                temp->rank--;
+                temp = temp->leftSon;
+            }
+            n->key = T(temp->key);
+            n->counter= temp->counter;
+            n->height = calcHeight(n);
+            n->rank= calcRank(n);
+            temp->key = key;
+            recRemoval(n, f, key);
+        }
+
+        n->height = calcHeight(n);
+        n->rank= calcRank(n);
+        preformRotation(n);
     }
 
     int max(int a, int b) {
