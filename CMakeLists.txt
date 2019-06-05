@@ -3,4 +3,4 @@ project(DataStructureWet2)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(DataStructureWet2 main.cpp main2.cpp library2.h)
+add_executable(DataStructureWet2 main.cpp main2.cpp library2.h AVLRankCounter.h)
