@@ -10,21 +10,18 @@ class UnionFind{
 private:
     int * groupsIDs;
     T * groups;
-    int size
+    int size;
 
 public:
     UnionFind(int s):size(s){
-        groupsIDs= new [size];
-        groups= new [size];
+        groupsIDs= new int[size];
+        groups= new T[size];
 
         for (int i = 0; i < size; ++i) {
             groupsIDs[i]= i;
             groups[i]= T(i);
         }
 
-        T& find(int find){
-
-        }
     }
 
     ~UnionFind(){
