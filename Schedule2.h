@@ -9,6 +9,7 @@
 #include "AVLtree.h"
 #include "UnionFind.h"
 #include "Wet2Exceptions.h"
+#include "HashTable.h"
 
 using namespace Wet2Utils;
 
@@ -88,8 +89,47 @@ class Schedule2 {
         }
     };
 
+    class BoolArray{
+        bool* arr;
 
+    public:
+        BoolArray(int size){
+            arr= new bool[size] ;
+            for (int i = 0; i < size; ++i) {
+                arr[i]= false;
+            }
+        }
+
+        bool* operator[](int i){
+            return arr+i;
+        }
+
+        ~BoolArray(){
+            delete[] arr;
+        }
+    };
+
+
+    HashTable<BoolArray> roomsHash;
     UnionFind<CourseID> courses;
+    int coursesNum;
+
+    Schedule2(int n):roomsHash(100), courses(n), coursesNum(n){}
+
+    void addRoom(int roomId){
+        if (roomId<=0)
+            throw InvalidInput();
+        roomsHash.insert(roomId, BoolArray(10));
+    }
+
+    void deleteRoom(int roomId){
+        if (roomId<=0)
+            throw InvalidInput();
+        if (roomsHash.member(roomId))
+            throw Failure();
+        //find by key here.
+
+    }
 
 };
 

@@ -13,14 +13,13 @@ template<class T>
 
 class HashTable{
 
-
 public:
     class KeyAndData{
     private:
         int key;
         T data;
     public:
-        KeyAndData (const int k=1, const T& d=NULL): key(k), data(d){}
+        KeyAndData (const int& k=1, const T& d=NULL): key(k), data(d){}
 
         int getKey(){
             return key;
@@ -67,7 +66,8 @@ public:
 //todo: important: this function may cause the array to be ready to expand;
 //shedule2 will have ownership over this process, since it knows what M is defined to be!
     void insert (const int key, const T& data){
-
+        if (member(key))
+            throw Failure();
         KeyAndData current = KeyAndData(key, data);
         int position = hashFunction(key);
         table[position].push(current);  //todo: test for Memory leak (maybe regular test will do)
