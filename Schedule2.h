@@ -6,7 +6,7 @@
 #define DATASTRUCTUREWET2_SCHEDULE2_H
 #define HOURS 10
 
-#include "AVLRankTree.h"
+#include "AVLtree.h"
 #include "UnionFind.h"
 #include "Wet2Exceptions.cpp"
 
@@ -14,12 +14,11 @@ using namespace Wet2Utils;
 
 class Schedule2 {
     class LectureGroup {
-        int groupId;
         bool inHour[HOURS];
         int students;
         int rooms[HOURS];
     public:
-        LectureGroup(int id, int s) : groupId(id), students(s) {}
+        LectureGroup(int s) :students(s) {}
 
         void addLecture(int hour, int room) {
             hour--;
@@ -41,21 +40,26 @@ class Schedule2 {
 
         }
 
-        bool operator>(LectureGroup& other){
-            if(students> other.students)
-                return true;
-            if (students<other.students)
-                return false;
-            if(groupId>other.groupId)
-                return true;
-            if(groupId<other.groupId)
-                return false;
-            throw AlreadyExist();
+        LectureGroup& operator+(const LectureGroup& other){
+            LectureGroup group(students+other.students);
+            for (int i = 0; i < HOURS; ++i) {
+                if (inHour[i]&&other.inHour[i])
+                    throw Failure();
+                if (inHour[i]) {
+                    group.inHour[i] = true;
+                    group.rooms[i]= rooms[i];
+
+                }else if(other.inHour[i]){
+                    group.inHour[i] = true;
+                    group.rooms[i]= other.rooms[i];
+                }
+                else
+                    group.inHour[i]=false;
+
+                return group;
+            }
         }
 
-        bool operator<(LectureGroup& other){
-            return !(this->operator>(other));
-        }
 
     };
 
@@ -63,7 +67,7 @@ class Schedule2 {
         int numStudent;
         int numLecture;
         int numCourse;
-        AVLRankTree<LectureGroup> lectures;
+        AVLtree<LectureGroup> lectures;
 
 
     public:
