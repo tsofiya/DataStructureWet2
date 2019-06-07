@@ -11,17 +11,16 @@
 using std::ostream;
 
 template<class T>
-struct Node {
-    T data;
-    Node *next;
-    Node *previous;
-};
-
-template<class T>
 class BiDirectionalList {
 private:
-    Node<T> *head;
-    Node<T> *tail;
+    struct Node {
+        T data;
+        Node *next;
+        Node *previous;
+    };
+
+    Node *head;
+    Node *tail;
     //friend ListIterator;
 
 public:
@@ -29,7 +28,7 @@ public:
     class ListIterator {
     private:
         BiDirectionalList *list;
-        Node<T> *current;
+        Node *current;
     public:
         ListIterator(BiDirectionalList *lst, bool hOrT) : list(lst) {
             if (lst == NULL)
@@ -57,16 +56,25 @@ public:
             return *this;
         }
 
+        Node* getCurrent(){
+            return current;
+        }
+
         T &operator*() {
             return current->data;
         }
 
+        bool isEnd(){
+            return current==NULL;
+        }
+
+
     };
 
-    BiDirectionalList(Node<T> *h = NULL, Node<T> *t = NULL) : head(h), tail(t) {}
-/*
-    Node<T> *push(const T &data) {
-        Node<T> *n = new Node<T>;
+    BiDirectionalList(Node*h = NULL, Node *t = NULL) : head(h), tail(t) {}
+
+    Node *push(const T &data) {
+        Node *n = new Node{data, NULL, NULL};
         n->data = data;
         if (head == NULL) {
             tail = n;
@@ -82,22 +90,22 @@ public:
         return n;
 
     }
-*/
-    Node<T> *push(const T &data) {
-        Node<T> *n = new Node<T>;
-        n->data = data;
-        n->previous=NULL;
-        n->next=head;
-        if (head){
-            head->previous=n;
-        }
-        head=n;
-        return n;
 
-    }
+//    Node<T> *push(const T &data) {
+//        Node<T> *n = new Node<T>;
+//        n->data = data;
+//        n->previous=NULL;
+//        n->next=head;
+//        if (head){
+//            head->previous=n;
+//        }
+//        head=n;
+//        return n;
+//
+//    }
 
 
-    Node<T> *removeNode(const Node<T> *toRemove) {
+    Node *removeNode(const Node *toRemove) {
 
         if (toRemove == NULL) {
             return NULL; //or throw exception?
@@ -135,7 +143,7 @@ public:
     friend ostream &operator<<(ostream &os, BiDirectionalList<T> &list) {
         //os << "direction 1: " << std::endl;
         os << "BEGIN <-> ";
-        Node<T> *ptr = list.head;
+        Node *ptr = list.head;
         while (ptr != NULL) {
             os << ptr->data << " <-> ";
             ptr = ptr->next;
@@ -146,15 +154,15 @@ public:
 
 
     ~BiDirectionalList() {
-        Node<T> *currentPos = head;
+        Node *currentPos = head;
         while (currentPos != NULL) {
-            Node<T> *nextPos = currentPos->next;
+            Node *nextPos = currentPos->next;
             delete (currentPos);
             currentPos = nextPos;
         }
     }
 
-    Node<T>* getHead(){
+    Node* getHead(){
         return head;
     }
 
@@ -169,7 +177,7 @@ public:
 
     int size() {
         int s = 0;
-        Node<T> *ptr = head;
+        Node *ptr = head;
         while (ptr != NULL) {
             s++;
             ptr = ptr->next;

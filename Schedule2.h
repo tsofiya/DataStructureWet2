@@ -10,46 +10,51 @@
 #include "UnionFind.h"
 #include "Wet2Exceptions.h"
 #include "HashTable.h"
+#include "AVLCounter.h"
 
 using namespace Wet2Utils;
 
 class Schedule2 {
     class LectureGroup {
+        friend Schedule2;
         bool inHour[HOURS];
         int students;
         int rooms[HOURS];
     public:
-        LectureGroup(int s) : students(s) {}
+        LectureGroup(int s, int hour, int room) : students(s) {
+            inHour[hour]=true;
+            room[hour]= room;
+        }
 
-        LectureGroup(const LectureGroup &other):students(other.students) {
+        LectureGroup(const LectureGroup &other) : students(other.students) {
             for (int i = 0; i < HOURS; ++i) {
-                inHour[i]= other.inHour[i];
-                rooms[i]= other.rooms[i];
+                inHour[i] = other.inHour[i];
+                rooms[i] = other.rooms[i];
             }
         }
+//
+//        void addLecture(int hour, int room) {
+//            hour--;
+//            //TODO- check in hash if the room is available! this is done outside, not here.
+//            if (hour < 0 || hour > HOURS || room <= 0)
+//                throw InvalidInput();
+//            if (inHour[hour])
+//                throw Failure();
+//            inHour[hour] = true;
+//            rooms[hour] = room;
+//        }
+//
+//        void deleteLecture(int hour, int room) {
+//            hour--;
+//            if (hour < 0 || hour > HOURS || room <= 0)
+//                throw InvalidInput();
+//            inHour[hour] = false;
+//            rooms[hour] = 0;
+//
+//        }
 
-        void addLecture(int hour, int room) {
-            hour--;
-            //TODO- check in hash if the room is available! this is done outside, not here.
-            if (hour < 0 || hour > HOURS || room <= 0)
-                throw InvalidInput();
-            if (inHour[hour])
-                throw Failure();
-            inHour[hour] = true;
-            rooms[hour] = room;
-        }
-
-        void deleteLecture(int hour, int room) {
-            hour--;
-            if (hour < 0 || hour > HOURS || room <= 0)
-                throw InvalidInput();
-            inHour[hour] = false;
-            rooms[hour] = 0;
-
-        }
-
-        LectureGroup &operator+(const LectureGroup &other) {
-            LectureGroup group(students + other.students);
+        LectureGroup operator+(const LectureGroup &other) {
+            LectureGroup group(other);
             for (int i = 0; i < HOURS; ++i) {
                 if (inHour[i] && other.inHour[i])
                     throw Failure();
@@ -62,74 +67,127 @@ class Schedule2 {
                     group.rooms[i] = other.rooms[i];
                 } else
                     group.inHour[i] = false;
-
-                return group;
             }
+            return group;
         }
 
 
     };
 
     class CourseID {
+        friend Schedule2;
         int numStudent;
-        int numLecture;
         int numCourse;
         AVLtree<int, LectureGroup> lectures;
+        AVLCounter<int> bestGroups;
 
 
     public:
-        CourseID(int id) : numStudent(0), numLecture(0), numCourse(id), lectures() {}
+        CourseID(int id) : numStudent(0),
+                           numCourse(id), lectures(), bestGroups() {}
+        CourseID() : numStudent(0),
+                           numCourse(0), lectures(), bestGroups() {}
+        CourseID(const CourseID& other) : numStudent(other.numStudent),
+                           numCourse(other.numCourse), lectures(other.lectures), bestGroups(other.bestGroups) {}
 
         ~CourseID() {}
 
         CourseID &operator+=(CourseID &other) {
             numStudent += other.numStudent;
-            numLecture += other.numLecture;
             return *this;
         }
+
     };
 
-    class BoolArray{
-        bool* arr;
+    class IntArray {
+        int *arr;
 
     public:
-        BoolArray(int size){
-            arr= new bool[size] ;
+        IntArray(int size) {
+            arr = new int[size];
             for (int i = 0; i < size; ++i) {
-                arr[i]= false;
+                arr[i] = 0;
             }
         }
 
-        bool* operator[](int i){
-            return arr+i;
+        int *operator[](int i) {
+            return arr + i;
         }
 
-        ~BoolArray(){
+        ~IntArray() {
             delete[] arr;
         }
     };
 
 
-    HashTable<BoolArray> roomsHash;
+    HashTable<IntArray> roomsHash;
     UnionFind<CourseID> courses;
     int coursesNum;
 
-    Schedule2(int n):roomsHash(100), courses(n), coursesNum(n){}
+public:
 
-    void addRoom(int roomId){
-        if (roomId<=0)
+    Schedule2(int n) : roomsHash(100), courses(n), coursesNum(n) {}
+
+    void addRoom(int roomId) {
+        if (roomId <= 0)
             throw InvalidInput();
-        roomsHash.insert(roomId, BoolArray(10));
+        if (roomsHash.member(roomId)){
+            throw Failure();
+        }
+        roomsHash.insert(roomId, IntArray(10));
     }
 
-    void deleteRoom(int roomId){
-        if (roomId<=0)
+    void deleteRoom(int roomId) {
+        if (roomId <= 0)
             throw InvalidInput();
         if (roomsHash.member(roomId))
             throw Failure();
-        //find by key here.
+        IntArray arr = roomsHash.getDataByKey(roomId);
+        for (int i = 0; i < HOURS; ++i) {
+            if (arr[i])
+                throw Failure();
+        }
 
+        roomsHash.deleteElement(roomId);
     }
+
+    void addLecture(int courseID, int groupID, int roomID, int hour, int numStudents) {
+        if (courseID < 1 || courseID > coursesNum || roomID <= 0
+            || numStudents < 0 || hour < 1 || hour > HOURS || groupID < 0)
+            throw InvalidInput();
+        if (!roomsHash.member(roomID))
+            throw Failure();
+        IntArray arr = roomsHash.getDataByKey(roomID);
+        if (arr[hour - 1])
+            throw Failure();
+        *(arr[hour - 1]) = courseID;
+
+        CourseID id = courses.Find(courseID - 1);
+        id.numStudent+=numStudents;
+        if (id.lectures.elementExistsByKey(groupID)){
+            LectureGroup exist= id.lectures.getDataByKey(groupID);
+            exist.inHour[hour-1]= true;
+            exist.rooms[hour-1]= roomID;
+        }
+        else
+            id.lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
+        id.bestGroups.insert(numStudents);
+    }
+
+    void deleteLecture(int hour, int roomID){
+        if (hour<1 || hour>10 || roomID<=0)
+            throw InvalidInput();
+        if (!roomsHash.member(roomID))
+            throw Failure();
+        IntArray array= roomsHash.getDataByKey(roomID);
+        if (!(*array[hour-1]))
+            throw Failure();
+        int courseID= (*array[hour-1]);
+        (*array[hour-1])= 0;
+        CourseID c= courses.Find(courseID);
+        //c.lectures.remove()
+    }
+
 
 };
 

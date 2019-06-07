@@ -6,10 +6,9 @@
 #define DATASTRUCTUREWET2_AVLCOUNTER_H
 
 #include <iostream>
-using namespace
 
 template <class K>
-class AVCounter{
+class AVLCounter{
 private:
     typedef struct Node_t{
         Node_t *rightSon;
@@ -27,6 +26,10 @@ public:
         root = NULL;
     }
 
+    AVLCounter(const AVLCounter& other){
+        recCopy(other.root);
+    }
+
 
     void inOrderPrint() {
         inOrder(root);
@@ -35,13 +38,13 @@ public:
 
     void insert(const K &key) {
         if (!root) {
-            root = new Node{NULL, NULL, 0, 1, 1, T(key)};
+            root = new Node{NULL, NULL, 0, 1, K(key)};
             size++;
             return;
         }
 
         if (!findAndUpdate(key)) {
-            Node *n = new Node{NULL, NULL, 0, 1, 1, T(key)};
+            Node *n = new Node{NULL, NULL, 0, 1, K(key)};
             recInsert(n, root);
             size++;
         }
@@ -53,17 +56,25 @@ public:
         size--;
     }
 
-    T& sumKBestKeys(int k){
+    K& sumKBestKeys(int k){
         return recSumKBestKeys(root, &k);
     }
 
 private:
-    //TODO: check for correctness.
-    T& recSumKBestKeys(Node* n, int* k){
-        if (*k==0 || n==NULL)
-            return T();
+    void recCopy(const Node* n){
+        if (n==NULL)
+            return;
+        insert(n->key);
+        recCopy(n->leftSon);
+        recCopy(n->rightSon);
+    }
 
-        T sumB= recSumKBestKeys(n->rightSon);
+    //TODO: check for correctness.
+    K& recSumKBestKeys(Node* n, int* k){
+        if (*k==0 || n==NULL)
+            return K();
+
+        K sumB= recSumKBestKeys(n->rightSon);
         if (*k!=0){
             (*k)--;
             return sumB+(n->key)+recSumKBestKeys(n->leftSon);
@@ -109,12 +120,12 @@ private:
     void llRotation(Node *a) {
         Node *b = a->leftSon;
         Node *moveA = new Node;
-        moveA->key = T(a->key);
+        moveA->key = K(a->key);
         moveA->counter = a->counter;
         moveA->rightSon = a->rightSon;
         moveA->leftSon = b->rightSon;
         moveA->height = calcHeight(moveA);
-        a->key = T(b->key);
+        a->key = K(b->key);
         a->counter = b->counter;
         a->leftSon = b->leftSon;
         a->rightSon = moveA;
@@ -128,13 +139,13 @@ private:
         Node *b = a->leftSon;
         Node *c = b->rightSon;
         Node *moveA = new Node;
-        moveA->key = T(a->key);
+        moveA->key = K(a->key);
         moveA->counter = a->counter;
         moveA->rightSon = a->rightSon;
         moveA->leftSon = c->rightSon;
         moveA->height = calcHeight(moveA);
         a->rightSon = moveA;
-        a->key = T(c->key);
+        a->key = K(c->key);
         a->counter = c->counter;
         b->rightSon = c->leftSon;
         b->height = calcHeight(b);
@@ -148,13 +159,13 @@ private:
         Node *b = a->rightSon;
         Node *moveA = new Node;
         moveA->counter = a->counter;
-        moveA->key = T(a->key);
+        moveA->key = K(a->key);
         moveA->leftSon = a->leftSon;
         moveA->rightSon = b->leftSon;
         moveA->height = calcHeight(moveA);
         a->leftSon = moveA;
         a->counter = b->counter;
-        a->key = T(b->key);
+        a->key = K(b->key);
         a->rightSon = b->rightSon;
         a->height = calcHeight(a);
         delete (b);
@@ -166,13 +177,13 @@ private:
         Node *c = b->leftSon;
         Node *moveA = new Node;
         moveA->counter = a->counter;
-        moveA->key = T(a->key);
+        moveA->key = K(a->key);
         moveA->leftSon = a->leftSon;
         moveA->rightSon = c->leftSon;
         moveA->height = calcHeight(moveA);
         a->leftSon = moveA;
         a->counter = c->counter;
-        a->key = T(c->key);
+        a->key = K(c->key);
         b->leftSon = c->rightSon;
         b->height = calcHeight(b);
         a->height = calcHeight(a);
@@ -255,18 +266,16 @@ private:
             n->rightSon = temp->rightSon;
             n->leftSon = temp->leftSon;
             n->key = K(temp->key);
-            n->key = T(temp->key);
             delete (temp);
         } else if (n->rightSon == NULL) {
             Node *temp = n->leftSon;
             n->rightSon = temp->rightSon;
             n->leftSon = temp->leftSon;
             n->key = temp->key;
-            n->key = temp->key;
             delete (temp);
         } else {
             Node *temp= findMostLeft(n->rightSon, n);
-            n->key = T(temp->key);
+            n->key = K(temp->key);
             n->height = calcHeight(n);
             temp->key = key;
             //recRemoval(n, f, key);

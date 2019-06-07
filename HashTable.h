@@ -19,7 +19,7 @@ public:
         int key;
         T data;
     public:
-        KeyAndData (const int& k=1, const T& d=NULL): key(k), data(d){}
+        KeyAndData (const int& k, const T& d): key(k), data(d){}
 
         int getKey(){
             return key;
@@ -80,18 +80,17 @@ public:
         if (!table[position].getHead()){
             throw KeyNotExist();
         }
-        Node<KeyAndData>* n= table[position].getHead();
-        while (n){
-        KeyAndData current = n->data;
+        auto n= table[position].beginForward();
+        while (n.isEnd()){
+        KeyAndData current = *n;
             if (current.getKey()==key){
-                table[position].removeNode(n);
+                table[position].removeNode(n.getCurrent());
                 insertedCounter--;
                 return;
             }
-            Node<KeyAndData>* temp = n;
-            n=temp->next;
+            ++n;
         }
-        if (!n){
+        if (n.isEnd()){
             throw KeyNotExist();
         }
     }
@@ -102,17 +101,36 @@ public:
         if (!table[position].getHead()){
             return false;
         }
-        Node<KeyAndData>* n= table[position].getHead();
-        while (n){
-            KeyAndData current = n->data;
+        auto n= table[position].beginForward();
+        while (n.isEnd()){
+            KeyAndData current = *n;
             if (current.getKey()==key){
                 return true;
             }
-            Node<KeyAndData>* temp = n;
-            n=temp->next;
+            ++n;
         }
-        if (!n){
+        if (!n.isEnd()){
             return false;
+        }
+        return true;
+    }
+
+    T& getDataByKey (const int key){
+
+        int position=hashFunction(key);
+        if (!table[position].getHead()){
+            throw KeyNotExist();
+        }
+        auto n= table[position].beginForward();
+        while (n.isEnd()){
+            KeyAndData current = *n;
+            if (current.getKey()==key){
+                return current.getData();
+            }
+            ++n;
+        }
+        if (!n.isEnd()){
+            throw KeyNotExist(); //should be key not exist
         }
     }
 

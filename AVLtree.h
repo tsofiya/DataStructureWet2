@@ -22,6 +22,7 @@ private:
         K key;
         T data;
     } Node;
+
     Node *root;
     int size;
 
@@ -31,7 +32,7 @@ public:
     }
 
     AVLtree(const AVLtree& other){
-        recCopy(other);
+        recCopy(other.root);
     }
 
 
@@ -50,6 +51,10 @@ public:
         recInsert(n, root);
         size++;
 
+    }
+
+    T& getDataByKey(const K& k){
+        recGetDataByKey(k, root);
     }
 
     void remove(const K &key) {
@@ -315,11 +320,14 @@ private:
     //TODO: not updated to be rank.
     void llRotation(Node *a) {
         Node *b = a->leftSon;
-        Node *moveA = new Node;
-        moveA->data = T(a->data);
-        moveA->key = K(a->key);
-        moveA->rightSon = a->rightSon;
-        moveA->leftSon = b->rightSon;
+        Node *moveA = new Node{
+                a->rightSon,
+                b->rightSon,
+                0,
+                K(a->key),
+                T(a->data)
+
+        };
         moveA->height = calcHeight(moveA);
         a->data = T(b->data);
         a->key = K(b->key);
@@ -333,11 +341,13 @@ private:
     void lrRotation(Node *a) {
         Node *b = a->leftSon;
         Node *c = b->rightSon;
-        Node *moveA = new Node;
-        moveA->data = T(a->data);
-        moveA->key = K(a->key);
-        moveA->rightSon = a->rightSon;
-        moveA->leftSon = c->rightSon;
+        Node *moveA = new Node{
+                a->rightSon,
+                c->rightSon,
+                0,
+               K(a->key),
+               T(a->data)
+        };
         moveA->height = calcHeight(moveA);
         a->rightSon = moveA;
         a->leftSon= b;
@@ -354,11 +364,13 @@ private:
     //TODO: not updated to be rank.
     void rrRotation(Node *a) {
         Node *b = a->rightSon;
-        Node *moveA = new Node;
-        moveA->data = T(a->data);
-        moveA->key = K(a->key);
-        moveA->leftSon = a->leftSon;
-        moveA->rightSon = b->leftSon;
+        Node *moveA = new Node{
+                b->leftSon,
+                a->leftSon,
+                0,
+                K(a->key),
+                T(a->data)
+        };
         moveA->height = calcHeight(moveA);
         a->leftSon = moveA;
         a->data = T(b->data);
@@ -373,11 +385,13 @@ private:
     void rlRotation(Node *a) {
         Node *b = a->rightSon;
         Node *c = b->leftSon;
-        Node *moveA = new Node;
-        moveA->data = T(a->data);
-        moveA->key = K(a->key);
-        moveA->leftSon = a->leftSon;
-        moveA->rightSon = c->leftSon;
+        Node *moveA = new Node{
+                c->leftSon,
+                a->leftSon,
+                0,
+                K(a->key),
+                T(a->data)
+        };
         moveA->height = calcHeight(moveA);
         a->leftSon = moveA;
         a->rightSon= b;
@@ -388,6 +402,20 @@ private:
         a->height = calcHeight(a);
         delete (c);
 
+    }
+
+    T & recGetDataByKey(Node *n, const K &key) {
+        if (n == NULL)
+            throw KeyNotExist();
+        if (n->key == key) {
+            return n->data;
+        } else {
+            if (key < n->key) {
+                return recGetByKey(n->leftSon, key);
+            } else {
+                return recGetByKey(n->rightSon, key);
+            }
+        }
     }
 
     int max(int a, int b) {
