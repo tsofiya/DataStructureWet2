@@ -6,6 +6,7 @@
 #define DATASTRUCTUREWET2_AVLCOUNTER_H
 
 #include <iostream>
+using namespace
 
 template <class K>
 class AVCounter{

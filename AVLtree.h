@@ -5,9 +5,9 @@
 #ifndef WET1DATASTRUCTURES_AVLTREE_H
 #define WET1DATASTRUCTURES_AVLTREE_H
 
-#include "Wet1Exceptions.h"
+#include "Wet2Exceptions.cpp"
 
-using namespace Wet1Utils;
+using namespace Wet2Utils;
 
 #include <iostream>
 
@@ -28,6 +28,10 @@ private:
 public:
     AVLtree() : size(0) {
         root = NULL;
+    }
+
+    AVLtree(const AVLtree& other){
+        recCopy(other);
     }
 
 
@@ -53,8 +57,15 @@ public:
         size--;
     }
 
+    //may throw an exception.
+    AVLtree& mergeTrees(const AVLtree& other){
+        AVLtree rTree(other);
+        rTree.addTreeToTree(this);
+        return rTree;
+    }
+
     //Return the data for a certain key. If the key does not exist, throws KeyNotExist();
-    T &getByKey(const K &key) {
+    Node* getByKey(const K &key) {
         return recGetByKey(root, key);
     }
 
@@ -97,6 +108,14 @@ public:
 
 
 private:
+    void recCopy(Node* n){
+        if (n==NULL)
+            return;
+        insert(n->key, n->data);
+        recCopy(n->rightSon);
+        recCopy(n->leftSon);
+    }
+
     void preOrder(Node *root) {
         if (root != NULL) {
             std::cout << "("<<root->key << ", "<<root->data<<") ";
@@ -107,11 +126,17 @@ private:
     }
 
     void addTreeToTreeRec(Node*n){
+        Node* exist= getByKey(n->key);
+        if (exist!=NULL) {
+            insert(n->key, n->data);
+        }
+        else
+            exist->data= exist->data+n->data;
+
         if (n->rightSon!=NULL)
             addTreeToTreeRec(n->rightSon);
         if (n->leftSon!=NULL)
             addTreeToTreeRec(n->leftSon);
-        insert(n->key, n->data);
     }
 
 //this can throw an exception, but it shouldnt...
@@ -142,11 +167,11 @@ private:
     }
 
 
-    T &recGetByKey(Node *n, const K &key) {
+    Node* recGetByKey(Node *n, const K &key) {
         if (n == NULL)
-            throw KeyNotExist();
+            NULL;
         if (n->key == key) {
-            return n->data;
+            return n;
         } else {
             if (key < n->key) {
                 return recGetByKey(n->leftSon, key);

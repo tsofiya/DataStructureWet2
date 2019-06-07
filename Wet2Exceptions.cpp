@@ -27,4 +27,11 @@ namespace Wet2Utils{
             return "Wet1Exception: Already exist.";
         }
     };
+
+    class KeyNotExist : public Wet2Exceptions {
+        virtual const char *what() const throw() {
+            return "Wet1Exception: Already exist.";
+        }
+    };
+
 }

@@ -18,43 +18,49 @@ class Schedule2 {
         int students;
         int rooms[HOURS];
     public:
-        LectureGroup(int s) :students(s) {}
+        LectureGroup(int s) : students(s) {}
+
+        LectureGroup(const LectureGroup &other):students(other.students) {
+            for (int i = 0; i < HOURS; ++i) {
+                inHour[i]= other.inHour[i];
+                rooms[i]= other.rooms[i];
+            }
+        }
 
         void addLecture(int hour, int room) {
             hour--;
             //TODO- check in hash if the room is available! this is done outside, not here.
-            if (hour < 0 || hour > HOURS || room<=0)
+            if (hour < 0 || hour > HOURS || room <= 0)
                 throw InvalidInput();
             if (inHour[hour])
                 throw Failure();
             inHour[hour] = true;
-            rooms[hour]=room;
+            rooms[hour] = room;
         }
 
-        void deleteLecture(int hour, int room){
+        void deleteLecture(int hour, int room) {
             hour--;
-            if (hour < 0 || hour > HOURS || room<=0)
+            if (hour < 0 || hour > HOURS || room <= 0)
                 throw InvalidInput();
-            inHour[hour]= false;
-            rooms[hour]=0;
+            inHour[hour] = false;
+            rooms[hour] = 0;
 
         }
 
-        LectureGroup& operator+(const LectureGroup& other){
-            LectureGroup group(students+other.students);
+        LectureGroup &operator+(const LectureGroup &other) {
+            LectureGroup group(students + other.students);
             for (int i = 0; i < HOURS; ++i) {
-                if (inHour[i]&&other.inHour[i])
+                if (inHour[i] && other.inHour[i])
                     throw Failure();
                 if (inHour[i]) {
                     group.inHour[i] = true;
-                    group.rooms[i]= rooms[i];
+                    group.rooms[i] = rooms[i];
 
-                }else if(other.inHour[i]){
+                } else if (other.inHour[i]) {
                     group.inHour[i] = true;
-                    group.rooms[i]= other.rooms[i];
-                }
-                else
-                    group.inHour[i]=false;
+                    group.rooms[i] = other.rooms[i];
+                } else
+                    group.inHour[i] = false;
 
                 return group;
             }
