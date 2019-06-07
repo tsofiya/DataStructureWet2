@@ -8,7 +8,7 @@
 
 #include "AVLtree.h"
 #include "UnionFind.h"
-#include "Wet2Exceptions.cpp"
+#include "Wet2Exceptions.h"
 
 using namespace Wet2Utils;
 
@@ -73,7 +73,7 @@ class Schedule2 {
         int numStudent;
         int numLecture;
         int numCourse;
-        AVLtree<LectureGroup> lectures;
+        AVLtree<int, LectureGroup> lectures;
 
 
     public:

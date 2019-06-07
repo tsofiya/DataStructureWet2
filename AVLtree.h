@@ -5,7 +5,7 @@
 #ifndef WET1DATASTRUCTURES_AVLTREE_H
 #define WET1DATASTRUCTURES_AVLTREE_H
 
-#include "Wet2Exceptions.cpp"
+#include "Wet2Exceptions.h"
 
 using namespace Wet2Utils;
 

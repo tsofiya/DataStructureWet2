@@ -1,9 +1,9 @@
 //
-// Created by tsofi on 06/06/2019.
+// Created by tsofi on 07/06/2019.
 //
 
-#include "exception"
-
+#ifndef WET2_WET2EXCEPTIONS_H
+#define WET2_WET2EXCEPTIONS_H
 namespace Wet2Utils{
     class Wet2Exceptions : public std::exception {
     public:
@@ -35,3 +35,4 @@ namespace Wet2Utils{
     };
 
 }
+#endif //WET2_WET2EXCEPTIONS_H
