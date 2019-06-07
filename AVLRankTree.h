@@ -2,28 +2,27 @@
 // Created by tsofi on 30/05/2019.
 //
 
-#ifndef DATASTRUCTUREWET2_AVLRANKCOUNTER_H
-#define DATASTRUCTUREWET2_AVLRANKCOUNTER_H
+#ifndef DATASTRUCTUREWET2_AVLRANKTREE_H
+#define DATASTRUCTUREWET2_AVLRANKTREE_H
 
 #include <iostream>
 
-template <class K>
-class AVLRankCounter{
+template<class K>
+class AVLRankTree {
 private:
-    typedef struct Node_t{
+    typedef struct Node_t {
         Node_t *rightSon;
         Node_t *leftSon;
         int height;
         int rank;
-        int counter;
         K key;
-    }Node;
+    } Node;
 
     Node *root;
     int size;
 
 public:
-    AVLRankCounter() : size(0) {
+    AVLRankTree() : size(0) {
         root = NULL;
     }
 
@@ -35,22 +34,26 @@ public:
 
     void insert(const K &key) {
         if (!root) {
-            root = new Node{NULL, NULL, 0, 1, 1, T(key)};
+            root = new Node{NULL, NULL, 0, 1, 1, K(key)};
             size++;
             return;
         }
 
-        if (!findAndUpdate(key)) {
-            Node *n = new Node{NULL, NULL, 0, 1, 1, T(key)};
-            recInsert(n, root);
-            size++;
-        }
+        Node *n = new Node{NULL, NULL, 0, 1, K(key)};
+        recInsert(n, root);
+        size++;
 
     }
 
     void remove(const K &key) {
         recRemoval(root, NULL, key);
         size--;
+    }
+
+    void ChangeKey(K& lastK, K& newK){
+        K d= getByKey(lastK);
+        remove(lastK);
+        insert(newK, d);
     }
 
 
@@ -95,17 +98,15 @@ private:
         Node *b = a->leftSon;
         Node *moveA = new Node;
         moveA->key = T(a->key);
-        moveA->counter = a->counter;
         moveA->rightSon = a->rightSon;
         moveA->leftSon = b->rightSon;
         moveA->height = calcHeight(moveA);
         moveA->rank = calcRank(moveA);
         a->key = T(b->key);
-        a->counter = b->counter;
         a->leftSon = b->leftSon;
         a->rightSon = moveA;
-        a->rank=calcRank(a);
-        a->height= calcRank(a);
+        a->rank = calcRank(a);
+        a->height = calcRank(a);
         delete (b);
 
     }
@@ -116,14 +117,12 @@ private:
         Node *c = b->rightSon;
         Node *moveA = new Node;
         moveA->key = T(a->key);
-        moveA->counter = a->counter;
         moveA->rightSon = a->rightSon;
         moveA->leftSon = c->rightSon;
         moveA->height = calcHeight(moveA);
         moveA->rank = calcRank(moveA);
         a->rightSon = moveA;
         a->key = T(c->key);
-        a->counter = c->counter;
         a->rank = calcRank(c);
         b->rightSon = c->leftSon;
         b->height = calcHeight(b);
@@ -139,14 +138,12 @@ private:
         Node *b = a->rightSon;
         Node *moveA = new Node;
         moveA->rank = a->rank;
-        moveA->counter = a->counter;
         moveA->key = T(a->key);
         moveA->leftSon = a->leftSon;
         moveA->rightSon = b->leftSon;
         moveA->height = calcHeight(moveA);
         moveA->rank = calcRank(moveA);
         a->leftSon = moveA;
-        a->counter = b->counter;
         a->key = T(b->key);
         a->rightSon = b->rightSon;
         a->height = calcHeight(a);
@@ -160,14 +157,12 @@ private:
         Node *c = b->leftSon;
         Node *moveA = new Node;
         moveA->rank = a->rank;
-        moveA->counter = a->counter;
         moveA->key = T(a->key);
         moveA->leftSon = a->leftSon;
         moveA->rightSon = c->leftSon;
         moveA->height = calcHeight(moveA);
         moveA->rank = calcRank(moveA);
         a->leftSon = moveA;
-        a->counter = c->counter;
         a->key = T(c->key);
         a->rank = calcRank(a);
         b->leftSon = c->rightSon;
@@ -177,34 +172,6 @@ private:
         a->rank = calcRank(a);
         delete (c);
 
-    }
-
-    bool findAndUpdate(const K &key){
-        return recFindAndUpdate(key, root);
-    }
-
-    bool recFindAndUpdate(const K &key, Node* curr){
-        if (curr==NULL)
-            return false;
-
-        if (curr->key==key){
-            curr->counter++;
-            curr->rank++;
-            return true;
-        }
-
-        if (curr->key>key){
-            if (recFindAndUpdate(key, curr->leftSon)){
-                curr->rank++;
-                return true;
-            }
-
-        }
-
-        if (recFindAndUpdate(key, curr->rightSon)){
-            curr->rank++;
-            return true;
-        }
     }
 
     int calcHeight(Node *n) {
@@ -219,12 +186,12 @@ private:
 
     int calcRank(Node *n) {
         if (n->rightSon == NULL && n->leftSon == NULL)
-            return n->counter;
+            return 1;
         if (n->rightSon == NULL)
-            return n->counter + n->leftSon->rank;
+            return n->leftSon->rank;
         if (n->leftSon == NULL)
-            return n->counter + n->rightSon->rank;
-        return n->counter + n->leftSon->rank+ n->rightSon->rank;
+            return n->rightSon->rank;
+        return n->leftSon->rank + n->rightSon->rank;
     }
 
     // Get Balance factor of a specific node
@@ -277,10 +244,10 @@ private:
             n->key = temp->key;
             delete (temp);
         } else {
-            Node *temp= findMostLeft(n->rightSon, n);
+            Node *temp = findMostLeft(n->rightSon, n);
             n->key = T(temp->key);
             n->height = calcHeight(n);
-            n->rank= calcRank(n);
+            n->rank = calcRank(n);
             temp->key = key;
             //recRemoval(n, f, key);
         }
@@ -290,18 +257,18 @@ private:
     }
 
 
-    Node* findMostLeft(Node* curr, Node* f){
-        if (curr->leftSon==NULL){
-            f->leftSon= NULL;
-            f->height= calcHeight(f);
-            f->rank= calcRank(f);
+    Node *findMostLeft(Node *curr, Node *f) {
+        if (curr->leftSon == NULL) {
+            f->leftSon = NULL;
+            f->height = calcHeight(f);
+            f->rank = calcRank(f);
             preformRotation(curr);
             return curr;
         }
 
-        Node* rn= findMostLeft(curr->leftSon, curr);
-        curr->height= calcHeight(curr);
-        curr->rank= calcRank(curr);
+        Node *rn = findMostLeft(curr->leftSon, curr);
+        curr->height = calcHeight(curr);
+        curr->rank = calcRank(curr);
         preformRotation(curr);
         return rn;
     }
@@ -311,13 +278,10 @@ private:
     }
 
 
-
     void inOrder(Node *root) {
         if (root != NULL) {
             inOrder(root->leftSon);
-            for (int i = 0; i < root->counter; ++i) {
-                std::cout << root->key<<" ";
-            }
+            std::cout << root->key << " ";
 
             inOrder(root->rightSon);
         }
@@ -326,4 +290,4 @@ private:
 };
 
 
-#endif //DATASTRUCTUREWET2_AVLRANKCOUNTER_H
+#endif //DATASTRUCTUREWET2_AVLRANKTREE_H

@@ -6,7 +6,7 @@
 #define DATASTRUCTUREWET2_SCHEDULE2_H
 #define HOURS 10
 
-#include "AVLRankCounter.h"
+#include "AVLRankTree.h"
 #include "UnionFind.h"
 #include "Wet2Exceptions.cpp"
 
@@ -63,7 +63,7 @@ class Schedule2 {
         int numStudent;
         int numLecture;
         int numCourse;
-        AVLRankCounter<LectureGroup> lectures;
+        AVLRankTree<LectureGroup> lectures;
 
 
     public:
@@ -74,6 +74,7 @@ class Schedule2 {
         CourseID &operator+=(CourseID &other) {
             numStudent += other.numStudent;
             numLecture += other.numLecture;
+            return *this;
         }
     };
 
