@@ -101,12 +101,16 @@ class Schedule2 {
 
     class IntArray {
         int *arr;
+        int * data;
+        friend Schedule2;
 
     public:
         IntArray(int size) {
             arr = new int[size];
+            data = new int[size];
             for (int i = 0; i < size; ++i) {
                 arr[i] = 0;
+                data[i] = 0;
             }
         }
 
@@ -160,7 +164,9 @@ public:
         IntArray arr = roomsHash.getDataByKey(roomID);
         if (arr[hour - 1])
             throw Failure();
+        courseID--;
         *(arr[hour - 1]) = courseID;
+        arr.data[hour-1]= groupID;
 
         CourseID id = courses.Find(courseID - 1);
         id.numStudent+=numStudents;
@@ -185,8 +191,28 @@ public:
         int courseID= (*array[hour-1]);
         (*array[hour-1])= 0;
         CourseID c= courses.Find(courseID);
-        //c.lectures.remove()
+        int groupID= array.data[hour-1];
+        array.data[hour-1]= 0;
+        LectureGroup l= c.lectures.getDataByKey(groupID);
+        l.inHour[hour-1]= false;
+        l.rooms[hour-1]= 0;
+        for (int i = 0; i < HOURS; ++i) {
+            if (l.inHour[i])
+                return;
+        }
+
+        c.lectures.remove(groupID);
+
     }
+
+    void  mergeCourses(int courseID1, int courseID2){
+        if (courseID1>coursesNum || courseID2>coursesNum|| courseID1<1 || courseID2<1)
+            throw InvalidInput();
+        courseID1--;
+        courseID2--;
+        courses.Union(courseID1, courseID2);
+    }
+
 
 
 };
