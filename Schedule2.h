@@ -114,8 +114,8 @@ class Schedule2 {
                 data[i] = 0;
             }
         }
-        
-        IntArray(const IntArray &other) {
+
+        IntArray(const IntArray &other):size(other.size) {
             arr = new int[size];
             data = new int[size];
             for (int i = 0; i < size; ++i) {
@@ -123,7 +123,7 @@ class Schedule2 {
                 data[i] = other.data[i];
             }
         }
-        
+
 
         int *operator[](int i) {
             return arr + i;
@@ -159,7 +159,7 @@ public:
             throw InvalidInput();
         if (!roomsHash.member(roomId))
             throw Failure();
-        IntArray arr = roomsHash.getDataByKey(roomId);
+        int* arr = roomsHash.getDataByKey(roomId).arr;
         for (int i = 0; i < HOURS; ++i) {
             if (arr[i])
                 throw Failure();
@@ -174,11 +174,12 @@ public:
             throw InvalidInput();
         if (!roomsHash.member(roomID))
             throw Failure();
-        IntArray arr = roomsHash.getDataByKey(roomID);
+        int* arr = roomsHash.getDataByKey(roomID).arr;
+        int* data = roomsHash.getDataByKey(roomID).data;
         if (arr[hour - 1])
             throw Failure();
-        *(arr[hour - 1]) = courseID;
-        arr.data[hour-1]= groupID;
+        arr[hour - 1] = courseID;
+        data[hour-1]= groupID;
 
         CourseID id = courses.Find(courseID - 1);
         id.numStudent+=numStudents;

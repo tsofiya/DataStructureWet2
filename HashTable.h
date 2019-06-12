@@ -16,7 +16,6 @@ class HashTable {
 
 public:
     class KeyAndData {
-    private:
         int key;
         T data;
     public:
@@ -139,9 +138,9 @@ public:
         }
         auto iterator = table[position].getHead();
         while (iterator) {
-            KeyAndData current = iterator->data;
-            if (current.getKey() == key) {
-                return current.getData();
+            //KeyAndData current = iterator->data;
+            if (iterator->data.getKey() == key) {
+                return iterator->data.getData();
             }
             if (iterator->next == NULL) {
                 throw Failure();

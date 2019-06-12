@@ -54,7 +54,7 @@ public:
     }
 
     T& getDataByKey(const K& k){
-        recGetDataByKey(root, k);
+        return recGetDataByKey(root, k);
     }
 
     void remove(const K &key) {

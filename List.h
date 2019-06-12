@@ -15,29 +15,24 @@ using std::ostream;
 template<class T>
 class List {
 public:
-    class Node {
-    public:
+    struct Node {
         T data;
         Node *next;
     };
 
-    Node *head;
     //friend ListIterator;
-
-public:
-
     class ListIterator {
     private:
         List *list;
         Node *current;
     public:
-       ListIterator(List *lst) : list(lst) {
-           if (lst == NULL)
-               throw InvalidInput();
-           if (lst->head == NULL){
-               current = NULL;
-       }
-           current = (lst)->head;
+        ListIterator(List *lst) : list(lst) {
+            if (lst == NULL)
+                throw InvalidInput();
+            if (lst->head == NULL) {
+                current = NULL;
+            }
+            current = (lst)->head;
         }
 
         ListIterator &operator++() {
@@ -48,8 +43,7 @@ public:
         }
 
 
-
-        Node* getCurrent(){
+        Node *getCurrent() {
             return current;
         }
 
@@ -57,26 +51,26 @@ public:
             return current->data;
         }
 
-        bool isEnd(){
-            return current==NULL;
+        bool isEnd() {
+            return current == NULL;
         }
 
 
     };
 
+private:
+    Node *head;
+
+public:
+
     List() {
-        head= NULL;
+        head = NULL;
     }
 
     Node *push(const T &data) {
-        if (head==NULL){
-            head= new Node{data, NULL};
-            return head;
-        }
-
-        Node *temp=new Node{data, head};
-        head=temp;
-        return temp;
+        Node * temp = new Node{data, head};
+        head= temp;
+        return head;
 
     }
 
@@ -132,36 +126,25 @@ public:
 
    */
 
-    Node *removeNode(Node *toRemove) {
+    void removeNode(Node *toRemove) {
 
         if (head == toRemove) {
             head = head->next;
             delete (toRemove);
-            return head;
+            return;
         }
 
-
-        // When not first node, follow
-        // the normal deletion process
-
-        // find the previous node
-        Node *prev = head;
-        while (prev->next != NULL && prev->next != toRemove)
-            prev = prev->next;
-
-        // Check if node really exists in Linked List
-        if (prev->next == NULL) {
-            std::cout << "\nGiven node is not present in Linked List";
-            return NULL;
+        Node* curr= head;
+        Node* prev= head->next;
+        while(prev->next!= NULL){
+            if (prev==toRemove)
+            {
+                delete (prev);
+                curr->next=NULL;
+            }
+            curr= prev;
+            prev= prev->next;
         }
-
-        // Remove node from Linked List
-        prev->next = prev->next->next;
-
-        // Free memory
-        free(toRemove);
-
-        return NULL;
     }
 
     friend ostream &operator<<(ostream &os, List<T> &list) {
@@ -211,11 +194,6 @@ public:
     }
 
 };
-
-
-
-
-
 
 
 #endif //WET2_LIST_H
