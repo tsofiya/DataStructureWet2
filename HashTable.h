@@ -6,25 +6,28 @@
 #define WET2_HASHTABLE_H
 
 #include "BiDirectionalList.h"
-#include "DynamicArray.h"
+#include "List.h"
 #include "Wet2Exceptions.h"
 
 template<class T>
 
-class HashTable{
+class HashTable {
+
 
 public:
-    class KeyAndData{
+    class KeyAndData {
     private:
         int key;
         T data;
     public:
-        KeyAndData (const int& k, const T& d): key(k), data(d){}
+        KeyAndData(const int k, const T &d) : key(k), data(d) {}
 
-        int getKey(){
+
+        int getKey() {
             return key;
         }
-        T& getData(){
+
+        T &getData() {
             return data;
         }
     };
@@ -33,136 +36,154 @@ private:
 
     int tableSize;
     int insertedCounter;
-    BiDirectionalList<KeyAndData> * table;
+    List<KeyAndData> *table;
 
 public:
 
-    HashTable (int ts=1) : tableSize(ts){
-        insertedCounter=0;
-        table = new BiDirectionalList<KeyAndData>[tableSize];
-        for (int i=0; i<tableSize; i++){
-            table[i]=NULL;
+    HashTable(int ts = 1) : tableSize(ts) {
+        insertedCounter = 0;
+        table = new List<KeyAndData>[tableSize];
+        for (int i = 0; i < tableSize; i++) {
+            table[i] = List<KeyAndData>();
         }
     }
 
-    ~HashTable(){
+    ~HashTable() {
         delete[](table);
     }
+
     //todo: ASK: should we change this to "k%tableSize" ??
     // should we make the default size 22 or something, and then it will forever remain the same? or nah?
     //how does the growth factor here matter when resizing?
-    int hashFunction(const int k){
-        return (k%tableSize);
+    int hashFunction(const int k) {
+        return (k % tableSize);
         //return (k%size??);
     }
 
-    int getTableSize(){
+    int getTableSize() {
         return tableSize;
     }
-    int getInsertedCounter(){
+
+    int getInsertedCounter() {
         return insertedCounter;
     }
 
 //todo: important: this function may cause the array to be ready to expand;
 //shedule2 will have ownership over this process, since it knows what M is defined to be!
-    void insert (const int key, const T& data){
-        if (member(key))
+    void insert(const int key, const T &data) {
+        if (member(key)) {
             throw Failure();
+        }
         KeyAndData current = KeyAndData(key, data);
         int position = hashFunction(key);
         table[position].push(current);  //todo: test for Memory leak (maybe regular test will do)
         insertedCounter++;
     }
 
-    void deleteElement (const int key){
+    void deleteElement(const int key) {
 
-        int position=hashFunction(key);
-        if (!table[position].getHead()){
-            throw KeyNotExist();
+        int position = hashFunction(key);
+        if (!table[position].getHead()) {
+            throw Failure();
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-        KeyAndData current = *n;
-            if (current.getKey()==key){
-                table[position].removeNode(n.getCurrent());
+        auto iterator = table[position].getHead();
+        while (iterator != nullptr) {
+            KeyAndData current = iterator->data;
+            if (current.getKey() == key) {
+                table[position].removeNode(iterator);
                 insertedCounter--;
                 return;
             }
-            ++n;
+
+            if (iterator->next == NULL) {
+                throw Failure();
+            } else {
+                iterator = (iterator->next);
+            }
         }
-        if (n.isEnd()){
-            throw KeyNotExist();
+        if (!iterator) {
+            throw Failure();
         }
     }
 
-    bool member (const int key){
+    bool member(const int key) {
 
-        int position=hashFunction(key);
-        if (!table[position].getHead()){
+        int position = hashFunction(key);
+        if (!table[position].getHead()) {
             return false;
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-            KeyAndData current = *n;
-            if (current.getKey()==key){
+
+        auto iterator = table[position].getHead();
+        while (iterator) {
+            KeyAndData current = iterator->data;
+            if (current.getKey() == key) {
                 return true;
             }
-            ++n;
+            if (iterator->next == NULL) {
+                return false;
+            } else {
+                iterator = (iterator->next);
+            }
         }
-        if (!n.isEnd()){
-            return false;
-        }
-        return true;
+
+        return false;
+
     }
 
-    T& getDataByKey (const int key){
 
-        int position=hashFunction(key);
-        if (!table[position].getHead()){
-            throw KeyNotExist();
+    T &getDataByKey(const int key) {
+
+        int position = hashFunction(key);
+        if (!table[position].getHead()) {
+            throw Failure();
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-            KeyAndData current = *n;
-            if (current.getKey()==key){
+        auto iterator = table[position].getHead();
+        while (iterator) {
+            KeyAndData current = iterator->data;
+            if (current.getKey() == key) {
                 return current.getData();
             }
-            ++n;
+            if (iterator->next == NULL) {
+                throw Failure();
+            } else {
+                iterator = (iterator->next);
+            }
         }
-        if (!n.isEnd()){
-            throw KeyNotExist(); //should be key not exist
-        }
+
+        throw Failure(); //should be key not exist
+
     }
 
+    void expand() {
 
-void expand (){
-
-    int temp=tableSize*2;
-    BiDirectionalList<KeyAndData>* newTable = new BiDirectionalList<KeyAndData>[temp]; //may throw bad_alloc();
-    for (int i=0; i<temp; i++){
-        newTable[i]=NULL;
-    }
-    for (int i=0; i<tableSize; i++){
-        newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
-    }
-    delete[]table; //todo: is this right? memory leak??
-    table=newTable;
-    tableSize=temp;
-}
-
-    void shrink(){
-
-        int temp=tableSize/2;
-        BiDirectionalList<KeyAndData>* newTable = new BiDirectionalList<KeyAndData>[temp]; //may throw bad_alloc();
-        for (int i=0; i<temp; i++){
-            newTable[i]=NULL;
+        int temp = tableSize * 2;
+        List<KeyAndData> *newTable = new List<KeyAndData>[temp]; //may throw bad_alloc();
+        for (int i = 0; i < temp; i++) {
+            newTable[i] = NULL;
         }
-        for (int i=0; i<tableSize; i++){
-            newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+        for (int i = 0; i < tableSize; i++) {
+            //  newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+            newTable[i] = table[i];
         }
-        delete[]table; //todo: is this right? memory leak??
-        table=newTable;
-        tableSize=temp;
+        //delete[]table; //todo: is this right? memory leak??
+        table = newTable;
+        tableSize = temp;
+    }
+
+    void shrink() {
+
+        int temp = tableSize / 2;
+        List<KeyAndData> *newTable = new List<KeyAndData>[temp]; //may throw bad_alloc();
+        for (int i = 0; i < temp; i++) {
+            newTable[i] = NULL;
+        }
+        for (int i = 0; i < tableSize; i++) {
+            //  newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+            newTable[i] = table[i];
+        }
+        //delete[]table; //todo: is this right? memory leak??
+        table = newTable;
+        tableSize = temp;
     }
 
     /*void printHashTable() {
@@ -208,21 +229,21 @@ void expand (){
 
     friend ostream &operator<<(ostream &os, KeyAndData &kd) {
         os << "|_Key: " << kd.getKey();
-        os << " Data:" << kd.getData() <<"_|";
+        os << " Data:" << kd.getData() << "_|";
         return os;
     }
 
     void printHashTable() {
         for (int i = 0; i < tableSize; i++) {
-            std::cout <<"Table Cell: "<< i;
-            std::cout <<"->";
+            std::cout << "Table Cell: " << i;
+            std::cout << "->";
             std::cout << table[i];
             std::cout << std::endl;
         }
     }
 
-};
 
+};
 
 
 #endif //WET2_HASHTABLE_H

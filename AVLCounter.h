@@ -1,3 +1,4 @@
+
 //
 // Created by tsofi on 07/06/2019.
 //
@@ -56,8 +57,12 @@ public:
         size--;
     }
 
-    K& sumKBestKeys(int k){
+    K sumKBestKeys(int k){
         return recSumKBestKeys(root, &k);
+    }
+
+    int getSize(){
+        return size;
     }
 
 private:
@@ -70,14 +75,14 @@ private:
     }
 
     //TODO: check for correctness.
-    K& recSumKBestKeys(Node* n, int* k){
+    K recSumKBestKeys(Node* n, int* k){
         if (*k==0 || n==NULL)
             return K();
 
-        K sumB= recSumKBestKeys(n->rightSon);
+        K sumB= recSumKBestKeys(n->rightSon, k);
         if (*k!=0){
             (*k)--;
-            return sumB+(n->key)+recSumKBestKeys(n->leftSon);
+            return sumB+(n->key)+recSumKBestKeys(n->leftSon, k);
         }
         return sumB;
     }
@@ -214,6 +219,8 @@ private:
         if (recFindAndUpdate(key, curr->rightSon)){
             return true;
         }
+
+        return false;
     }
 
     int calcHeight(Node *n) {
@@ -321,3 +328,4 @@ private:
 
 
 #endif //DATASTRUCTUREWET2_AVLCOUNTER_H
+

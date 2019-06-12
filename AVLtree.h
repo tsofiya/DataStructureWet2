@@ -54,7 +54,7 @@ public:
     }
 
     T& getDataByKey(const K& k){
-        recGetDataByKey(k, root);
+        recGetDataByKey(root, k);
     }
 
     void remove(const K &key) {
@@ -404,16 +404,17 @@ private:
 
     }
 
-    T & recGetDataByKey(Node *n, const K &key) {
+    T& recGetDataByKey(Node *n, const K &key) {
+
         if (n == NULL)
             throw KeyNotExist();
         if (n->key == key) {
             return n->data;
         } else {
             if (key < n->key) {
-                return recGetByKey(n->leftSon, key);
+                return recGetDataByKey(n->leftSon, key);
             } else {
-                return recGetByKey(n->rightSon, key);
+                return recGetDataByKey(n->rightSon, key);
             }
         }
     }

@@ -1,9 +1,10 @@
 //
-// Created by tsofi on 07/06/2019.
+// Created by tsofi on 06/06/2019.
 //
+#ifndef WET2EXPTIONS_H
+#define WET2EXPTIONS_H
+#include <exception>
 
-#ifndef WET2_WET2EXCEPTIONS_H
-#define WET2_WET2EXCEPTIONS_H
 namespace Wet2Utils{
     class Wet2Exceptions : public std::exception {
     public:
@@ -30,9 +31,10 @@ namespace Wet2Utils{
 
     class KeyNotExist : public Wet2Exceptions {
         virtual const char *what() const throw() {
-            return "Wet1Exception: Already exist.";
+            return "Wet1Exception: Key not exist.";
         }
     };
 
 }
-#endif //WET2_WET2EXCEPTIONS_H
+
+#endif

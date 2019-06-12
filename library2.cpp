@@ -1,31 +1,11 @@
-/****************************************************************************/
-/*                                                                          */
-/* This file contains the interface functions                               */
-/* you should use for the wet ex 2                                          */
-/*                                                                          */
-/****************************************************************************/
+//
+// Created by tsofi on 12/06/2019.
+//
 
-/****************************************************************************/
-/*                                                                          */
-/* File Name : library2.h                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-#ifndef _234218_WET2_
-#define _234218_WET2_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Return Values
- * ----------------------------------- */
-typedef enum {
-    SUCCESS = 0,
-    FAILURE = -1,
-    ALLOCATION_ERROR = -2,
-    INVALID_INPUT = -3
-} StatusType;
+#include "library2.h"
+#include "Schedule2.h"
+#include "Wet2Exceptions.h"
+using namespace Wet2Utils;
 
 /* Required Interface for the Data Structure
  * -----------------------------------------*/
@@ -36,7 +16,19 @@ typedef enum {
  * Output:        None.
  * Return Values: A pointer to a new instance of the data structure - as a void* pointer.
  */
-void* Init(int n);
+void *Init(int n) {
+    try {
+        Schedule2 *DS = new Schedule2(n);
+        return (void *) DS;
+
+    }
+    catch (const Wet2Exceptions &e) {
+        return NULL;
+    }
+    catch (std::bad_alloc &ba) {
+        return NULL;
+    }
+}
 
 /* Description:   Adds a new room.
  * Input:         DS - A pointer to the data structure.
@@ -47,7 +39,23 @@ void* Init(int n);
  *                FAILURE - If roomId is already in the DS.
  *                SUCCESS - Otherwise.
  */
-StatusType addRoom(void *DS, int roomID);
+StatusType addRoom(void *DS, int roomID) {
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        ((Schedule2 *) DS)->addRoom(roomID);
+    } catch (std::bad_alloc &ba) {
+        return ALLOCATION_ERROR;
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Deletes a room.
  * Input:         DS - A pointer to the data structure.
@@ -57,7 +65,21 @@ StatusType addRoom(void *DS, int roomID);
  *                FAILURE - If roomId is not in the DS.
  *                SUCCESS - Otherwise.
  */
-StatusType deleteRoom(void *DS, int roomID);
+StatusType deleteRoom(void *DS, int roomID) {
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        ((Schedule2 *) DS)->deleteRoom(roomID);
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Adds a new lecture.
  * Input:         DS - A pointer to the data structure.
@@ -78,7 +100,23 @@ StatusType deleteRoom(void *DS, int roomID);
  *
  *                SUCCESS - Otherwise.
  */
-StatusType addLecture(void *DS, int courseID, int groupID, int roomID, int hour, int numStudents);
+StatusType addLecture(void *DS, int courseID, int groupID, int roomID, int hour, int numStudents) {
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        ((Schedule2 *) DS)->addLecture(courseID, groupID, roomID, hour, numStudents);
+    } catch (std::bad_alloc &ba) {
+        return ALLOCATION_ERROR;
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Deletes a lecture from the DS.
  * Input:         DS - A pointer to the data structure.
@@ -93,7 +131,21 @@ StatusType addLecture(void *DS, int courseID, int groupID, int roomID, int hour,
  *                              in the given hour
  *                SUCCESS - Otherwise.
  */
-StatusType deleteLecture(void *DS, int hour, int roomID);
+StatusType deleteLecture(void *DS, int hour, int roomID) {
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        ((Schedule2 *) DS)->deleteLecture(hour, roomID);
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Merges the two courses.
  * Input:         DS - A pointer to the data structure.
@@ -105,7 +157,23 @@ StatusType deleteLecture(void *DS, int hour, int roomID);
  *                FAILURE - If both ID's refer to the same course, or both courses have a lecture of the same groupId at the same hour
  *                SUCCESS - Otherwise.
  */
-StatusType mergeCourses(void *DS, int courseID1, int courseID2);
+StatusType mergeCourses(void *DS, int courseID1, int courseID2) {
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        ((Schedule2 *) DS)->mergeCourses(courseID1, courseID2);
+    } catch (std::bad_alloc &ba) {
+        return ALLOCATION_ERROR;
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Conduct a competition between the two courses.
  * Input:         DS - A pointer to the data structure.
@@ -119,7 +187,23 @@ StatusType mergeCourses(void *DS, int courseID1, int courseID2);
  *                FAILURE - If the two ID's refer to the same course.
  *                SUCCESS - Otherwise.
  */
-StatusType competition(void *DS, int courseID1, int courseID2, int numGroups, int * winner);
+StatusType competition(void *DS, int courseID1, int courseID2, int numGroups, int *winner){
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        *winner= ((Schedule2 *) DS)->competition(courseID1, courseID2, numGroups);
+    } catch (std::bad_alloc &ba) {
+        return ALLOCATION_ERROR;
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Returns the average amount of students in each group of the corresponding course.
  * Input:         DS - A pointer to the data structure.
@@ -134,7 +218,23 @@ StatusType competition(void *DS, int courseID1, int courseID2, int numGroups, in
  *                          is taking place in the given hour
  *                SUCCESS - Otherwise.
  */
-StatusType getAverageStudentsInCourse(void *DS, int hour, int roomID, float * average);
+StatusType getAverageStudentsInCourse(void *DS, int hour, int roomID, float *average){
+    if (DS == NULL)
+        return INVALID_INPUT;
+    try {
+        *average= ((Schedule2 *) DS)->getAverageStudentsInCourse(hour, roomID);
+    } catch (std::bad_alloc &ba) {
+        return ALLOCATION_ERROR;
+    } catch (InvalidInput &ii) {
+        return INVALID_INPUT;
+    } catch (Failure &f) {
+        return FAILURE;
+    } catch (std::exception &e) {
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
 
 /* Description:   Quits and deletes the database.
  *                DS should be set to NULL.
@@ -142,10 +242,7 @@ StatusType getAverageStudentsInCourse(void *DS, int hour, int roomID, float * av
  * Output:        None.
  * Return Values: None.
  */
-void Quit(void** DS);
-
-#ifdef __cplusplus
+void Quit(void **DS){
+    delete (((Schedule2 *) *DS));
+    *DS=NULL;
 }
-#endif
-
-#endif    /*_234218_WET2_ */

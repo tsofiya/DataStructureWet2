@@ -1,19 +1,18 @@
-//
-// Created by lucio on 6/6/2019.
-//
 
 #ifndef WET2_BIDIRECTIONALLIST_H
 #define WET2_BIDIRECTIONALLIST_H
 
-
+#include "Wet2Exceptions.h"
 #include <istream>
 
 using std::ostream;
+using namespace Wet2Utils;
 
 template<class T>
 class BiDirectionalList {
-private:
-    struct Node {
+public:
+    class Node{
+    public:
         T data;
         Node *next;
         Node *previous;
@@ -91,20 +90,22 @@ public:
 
     }
 
-//    Node<T> *push(const T &data) {
-//        Node<T> *n = new Node<T>;
-//        n->data = data;
-//        n->previous=NULL;
-//        n->next=head;
-//        if (head){
-//            head->previous=n;
-//        }
-//        head=n;
-//        return n;
-//
-//    }
+ /*
+    Node *push(const T &data) {
+        Node *n = new Node;
+        n->data = data;
+        n->previous=NULL;
+        n->next=head;
+        if (head){
+            head->previous=n;
+        }
+        head=n;
+        return n;
 
+    }
 
+*/
+ /*
     Node *removeNode(const Node *toRemove) {
 
         if (toRemove == NULL) {
@@ -139,6 +140,25 @@ public:
         return head;
     }
 
+*/
+
+ Node *removeNode( Node *toRemove) {
+     if (toRemove == NULL){
+         return head;
+     }
+
+     if (toRemove->previous == NULL){
+         head=(toRemove->next);
+     }
+     if (toRemove->next!=NULL){
+         toRemove->next->previous=toRemove->previous;
+     }
+     if (toRemove->previous!=NULL){
+         toRemove->previous->next = toRemove->next;
+     }
+     delete(toRemove);
+    return head;
+ }
 
     friend ostream &operator<<(ostream &os, BiDirectionalList<T> &list) {
         //os << "direction 1: " << std::endl;
@@ -154,8 +174,8 @@ public:
 
 
     ~BiDirectionalList() {
-        Node *currentPos = head;
-        while (currentPos != NULL) {
+        Node *currentPos = this->head;
+        while (currentPos) {
             Node *nextPos = currentPos->next;
             delete (currentPos);
             currentPos = nextPos;
@@ -189,6 +209,4 @@ public:
 
 };
 
-
-
-#endif //WET2_BIDIRECTIONALLIST_H
+#endif
