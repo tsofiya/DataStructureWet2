@@ -19,7 +19,7 @@ public:
 
         for (int i = 0; i < size; ++i) {
             groupsIDs[i]= i;
-            groups[i]= T(i);
+            groups[i]= T(i+1);
         }
 
     }

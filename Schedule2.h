@@ -21,9 +21,12 @@ class Schedule2 {
         int students;
         int rooms[HOURS];
     public:
-        LectureGroup(int s, int hour, int room) : students(s) {
-            inHour[hour]=true;
-            rooms[hour]= room;
+        LectureGroup(int s, int room) : students(s) {
+            for (int i = 0; i <HOURS ; ++i) {
+                inHour[i]= false;
+                rooms[i]= room;
+            }
+
         }
 
         LectureGroup(const LectureGroup &other):students(other.students) {
@@ -78,22 +81,28 @@ class Schedule2 {
         friend Schedule2;
         int numStudent;
         int numCourse;
+        int numLectures;
         AVLtree<int, LectureGroup> lectures;
         AVLCounter<int> bestGroups;
 
 
     public:
         CourseID(int id) : numStudent(0),
-                           numCourse(id), lectures(), bestGroups() {}
+                           numCourse(id),numLectures(0),  lectures(), bestGroups() {}
         CourseID() : numStudent(0),
-                     numCourse(0), lectures(), bestGroups() {}
+                     numCourse(0), numLectures(0), lectures(), bestGroups() {}
         CourseID(const CourseID& other) : numStudent(other.numStudent),
-                                          numCourse(other.numCourse), lectures(other.lectures), bestGroups(other.bestGroups) {}
+                                          numCourse(other.numCourse), numLectures(other.numLectures),lectures(other.lectures), bestGroups(other.bestGroups) {}
 
         ~CourseID() {}
 
         CourseID &operator+=(CourseID &other) {
             numStudent += other.numStudent;
+            numLectures+=other.numLectures;
+            AVLtree<int, LectureGroup> lec= lectures.mergeTrees(other.lectures);
+            lectures=lec;
+            AVLCounter<int> best= bestGroups.mergeTrees(other.bestGroups);
+            bestGroups= best;
             return *this;
         }
 
@@ -189,9 +198,13 @@ public:
             courses.Find(courseID - 1).lectures.getDataByKey(groupID).inHour[hour-1]= true;
             courses.Find(courseID - 1).lectures.getDataByKey(groupID).rooms[hour-1]= roomID;
         }
-        else
-            courses.Find(courseID - 1).lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
+        else {
+            courses.Find(courseID - 1).lectures.insert(groupID, LectureGroup(numStudents, roomID));
+            courses.Find(courseID - 1).lectures.getDataByKey(groupID).inHour[hour-1]= true;
+            courses.Find(courseID - 1).lectures.getDataByKey(groupID).rooms[hour-1]= roomID;
+        }
         courses.Find(courseID - 1).bestGroups.insert(numStudents);
+        courses.Find(courseID - 1).numLectures++;
     }
 
     void deleteLecture(int hour, int roomID){
@@ -218,7 +231,11 @@ public:
                 return;
         }
 
+        int students= courses.Find(courseID-1).lectures.getDataByKey(groupID).students;
+        courses.Find(courseID-1).numStudent-=students;
+        courses.Find(courseID-1).bestGroups.remove(students);
         courses.Find(courseID-1).lectures.remove(groupID);
+        courses.Find(courseID - 1).numLectures--;
 
     }
 
@@ -231,7 +248,6 @@ public:
     }
 
     int competition (int courseID1, int courseID2, int numGroups){
-
 
         if (courseID1< 1 || courseID2 < 1 || numGroups < 1 || courseID1 > coursesNum || courseID2 > coursesNum){
             throw InvalidInput();
@@ -275,16 +291,15 @@ public:
             throw Failure();
         }
         int* hourArray = roomsHash.getDataByKey(roomID).arr;
-        if (hourArray[hour] == 0){
+        if (hourArray[hour-1] == 0){
             throw Failure();
         }
         int courseID = (hourArray[hour-1]);
-        CourseID id = courses.Find(courseID - 1);
         //this should never happen, but just in case.....
-        if (id.lectures.getTreeSize() == 0 ){
+        if ( courses.Find(courseID - 1).lectures.getTreeSize() == 0 ){
             throw Failure();
         }
-        float average = (id.numStudent)/(id.lectures.getTreeSize());
+        float average = ( courses.Find(courseID - 1).numStudent)/( courses.Find(courseID - 1).numLectures);
         return average;
     }
 

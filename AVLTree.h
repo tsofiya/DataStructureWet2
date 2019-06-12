@@ -31,8 +31,14 @@ public:
         root = NULL;
     }
 
-    AVLtree(const AVLtree& other){
+    AVLtree(const AVLtree& other): size(0){
+        root = NULL;
         recCopy(other.root);
+    }
+
+    AVLtree operator=(const AVLtree& other){
+        AVLtree o(other) ;
+        return o;
     }
 
 
@@ -63,9 +69,9 @@ public:
     }
 
     //may throw an exception.
-    AVLtree& mergeTrees(const AVLtree& other){
+    AVLtree mergeTrees(const AVLtree& other){
         AVLtree rTree(other);
-        rTree.addTreeToTree(this);
+        rTree.addTreeToTree(*this);
         return rTree;
     }
 
@@ -132,7 +138,7 @@ private:
 
     void addTreeToTreeRec(Node*n){
         Node* exist= getByKey(n->key);
-        if (exist!=NULL) {
+        if (exist==NULL) {
             insert(n->key, n->data);
         }
         else
@@ -174,7 +180,7 @@ private:
 
     Node* recGetByKey(Node *n, const K &key) {
         if (n == NULL)
-            NULL;
+            return NULL;
         if (n->key == key) {
             return n;
         } else {

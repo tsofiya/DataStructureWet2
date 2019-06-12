@@ -26,8 +26,14 @@ public:
         root = NULL;
     }
 
-    AVLCounter(const AVLCounter& other){
+    AVLCounter(const AVLCounter& other):size(0){
+        root = NULL;
         recCopy(other.root);
+    }
+
+    AVLCounter operator=(const AVLCounter& other){
+        AVLCounter o(other) ;
+        return o;
     }
 
 
@@ -64,13 +70,55 @@ public:
         return size;
     }
 
+    AVLCounter mergeTrees(const AVLCounter& other){
+        AVLCounter rTree(other);
+        rTree.addTreeToTree(*this);
+        return rTree;
+    }
+
 private:
+    void addTreeToTree(AVLCounter& tree){
+        if (tree.root==NULL) return;
+        addTreeToTreeRec(tree.root);
+    }
+
+    void addTreeToTreeRec(Node*n){
+        Node* exist= getByKey(n->key);
+        if (exist==NULL) {
+            insert(n->key);
+        }
+        else
+            exist->key= exist->key+n->key;
+
+        if (n->rightSon!=NULL)
+            addTreeToTreeRec(n->rightSon);
+        if (n->leftSon!=NULL)
+            addTreeToTreeRec(n->leftSon);
+    }
+
     void recCopy(const Node* n){
         if (n==NULL)
             return;
         insert(n->key);
         recCopy(n->leftSon);
         recCopy(n->rightSon);
+    }
+    Node* recGetByKey(Node *n, const K &key) {
+        if (n == NULL)
+            return NULL;
+        if (n->key == key) {
+            return n;
+        } else {
+            if (key < n->key) {
+                return recGetByKey(n->leftSon, key);
+            } else {
+                return recGetByKey(n->rightSon, key);
+            }
+        }
+    }
+
+    Node* getByKey(const K &key) {
+        return recGetByKey(root, key);
     }
 
     //TODO: check for correctness.
