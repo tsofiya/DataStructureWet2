@@ -181,16 +181,14 @@ public:
         arr[hour - 1] = courseID;
         data[hour-1]= groupID;
 
-        CourseID id = courses.Find(courseID - 1);
-        id.numStudent+=numStudents;
-        if (id.lectures.elementExistsByKey(groupID)){
-            LectureGroup exist= id.lectures.getDataByKey(groupID);
-            exist.inHour[hour-1]= true;
-            exist.rooms[hour-1]= roomID;
+        courses.Find(courseID - 1)->numStudent+=numStudents;
+        if (courses.Find(courseID - 1)->lectures.elementExistsByKey(groupID)){
+            courses.Find(courseID - 1)->lectures.getDataByKey(groupID).inHour[hour-1]= true;
+            courses.Find(courseID - 1)->lectures.getDataByKey(groupID).rooms[hour-1]= roomID;
         }
         else
-            id.lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
-        id.bestGroups.insert(numStudents);
+            courses.Find(courseID - 1)->lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
+        courses.Find(courseID - 1)->bestGroups.insert(numStudents);
     }
 
     void deleteLecture(int hour, int roomID){
@@ -198,23 +196,24 @@ public:
             throw InvalidInput();
         if (!roomsHash.member(roomID))
             throw Failure();
-        IntArray array= roomsHash.getDataByKey(roomID);
-        if (!(*array[hour-1]))
+        int* array= roomsHash.getDataByKey(roomID).arr;
+        int* data= roomsHash.getDataByKey(roomID).data;
+        if (!(array[hour-1]))
             throw Failure();
-        int courseID= (*array[hour-1]);
-        (*array[hour-1])= 0;
-        CourseID c= courses.Find(courseID);
-        int groupID= array.data[hour-1];
-        array.data[hour-1]= 0;
-        LectureGroup l= c.lectures.getDataByKey(groupID);
-        l.inHour[hour-1]= false;
-        l.rooms[hour-1]= 0;
+        int courseID= (array[hour-1]);
+        (array[hour-1])= 0;
+        int groupID= data[hour-1]+1;
+        data[hour-1]= 0;
+        bool *inHour= courses.Find(courseID-1)->lectures.getDataByKey(groupID).inHour;
+        inHour[hour-1]= false;
+        int* room = courses.Find(courseID-1)->lectures.getDataByKey(groupID).rooms;
+        room[hour-1]= 0;
         for (int i = 0; i < HOURS; ++i) {
-            if (l.inHour[i])
+            if (courses.Find(courseID-1)->lectures.getDataByKey(groupID).inHour[i])
                 return;
         }
 
-        c.lectures.remove(groupID);
+        courses.Find(courseID-1)->lectures.remove(groupID);
 
     }
 
@@ -232,8 +231,8 @@ public:
         if (courseID1< 1 || courseID2 < 1 || numGroups < 1 || courseID1 > coursesNum || courseID2 > coursesNum){
             throw InvalidInput();
         }
-        CourseID id1 = courses.Find(courseID1 - 1);
-        CourseID id2 = courses.Find(courseID2 - 1); //todo: what if we didnt find them...?
+        CourseID id1 = *courses.Find(courseID1 - 1);
+        CourseID id2 = *courses.Find(courseID2 - 1); //todo: what if we didnt find them...?
         int studentSumInBest1;
         int studentSumInBest2;
 
@@ -275,7 +274,7 @@ public:
             throw Failure();
         }
         int courseID = (*hourArray[hour-1]);
-        CourseID id = courses.Find(courseID - 1);
+        CourseID id = *courses.Find(courseID - 1);
         //this should never happen, but just in case.....
         if (id.lectures.getTreeSize() == 0 ){
             throw Failure();

@@ -19,7 +19,7 @@ public:
 
         for (int i = 0; i < size; ++i) {
             groupsIDs[i]= i;
-            groups[i]= T(i);
+            groups[i]= T(i+1);
         }
 
     }
@@ -30,9 +30,10 @@ public:
     }
 
     //what should I return here? correct this if necessary
-    T& Find(int id){
+    T* Find(int id){
         int grp= recFind(id);
-        return groups[grp];
+        T * t=groups+grp;
+        return t;
     }
 
     //Decision: when we implement T as ids and so, we will implement +=.
