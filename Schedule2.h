@@ -299,7 +299,7 @@ public:
         if ( courses.Find(courseID - 1).lectures.getTreeSize() == 0 ){
             throw Failure();
         }
-        float average = ( courses.Find(courseID - 1).numStudent)/( courses.Find(courseID - 1).numLectures);
+        float average = ((float )( courses.Find(courseID - 1).numStudent))/((float )( courses.Find(courseID - 1).numLectures));
         return average;
     }
 
