@@ -86,9 +86,9 @@ class Schedule2 {
         CourseID(int id) : numStudent(0),
                            numCourse(id), lectures(), bestGroups() {}
         CourseID() : numStudent(0),
-                           numCourse(0), lectures(), bestGroups() {}
+                     numCourse(0), lectures(), bestGroups() {}
         CourseID(const CourseID& other) : numStudent(other.numStudent),
-                           numCourse(other.numCourse), lectures(other.lectures), bestGroups(other.bestGroups) {}
+                                          numCourse(other.numCourse), lectures(other.lectures), bestGroups(other.bestGroups) {}
 
         ~CourseID() {}
 
@@ -115,9 +115,10 @@ class Schedule2 {
             }
         }
 
-        IntArray(const IntArray &other):size(other.size) {
-            arr = new int[size];
-            data = new int[size];
+        IntArray(const IntArray &other) {
+            arr = new int[other.size];
+            data = new int[other.size];
+            size= other.size;
             for (int i = 0; i < size; ++i) {
                 arr[i] = other.arr[i];
                 data[i] = other.data[i];
@@ -131,6 +132,7 @@ class Schedule2 {
 
         ~IntArray() {
             delete[] arr;
+            delete[] data;
         }
     };
 
@@ -181,16 +183,15 @@ public:
         arr[hour - 1] = courseID;
         data[hour-1]= groupID;
 
-        CourseID id = courses.Find(courseID - 1);
-        id.numStudent+=numStudents;
-        if (id.lectures.elementExistsByKey(groupID)){
-            LectureGroup exist= id.lectures.getDataByKey(groupID);
-            exist.inHour[hour-1]= true;
-            exist.rooms[hour-1]= roomID;
+        //CourseID id = courses.Find(courseID - 1);
+        courses.Find(courseID - 1).numStudent+=numStudents;
+        if (courses.Find(courseID - 1).lectures.elementExistsByKey(groupID)){
+            courses.Find(courseID - 1).lectures.getDataByKey(groupID).inHour[hour-1]= true;
+            courses.Find(courseID - 1).lectures.getDataByKey(groupID).rooms[hour-1]= roomID;
         }
         else
-            id.lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
-        id.bestGroups.insert(numStudents);
+            courses.Find(courseID - 1).lectures.insert(groupID, LectureGroup(numStudents, hour-1, roomID));
+        courses.Find(courseID - 1).bestGroups.insert(numStudents);
     }
 
     void deleteLecture(int hour, int roomID){
@@ -198,23 +199,26 @@ public:
             throw InvalidInput();
         if (!roomsHash.member(roomID))
             throw Failure();
-        IntArray array= roomsHash.getDataByKey(roomID);
-        if (!(*array[hour-1]))
+      //  IntArray array= roomsHash.getDataByKey(roomID);
+        int* arr = roomsHash.getDataByKey(roomID).arr;
+        int* data = roomsHash.getDataByKey(roomID).data;
+
+        if (!arr[hour-1])
             throw Failure();
-        int courseID= (*array[hour-1]);
-        (*array[hour-1])= 0;
-        CourseID c= courses.Find(courseID);
-        int groupID= array.data[hour-1];
-        array.data[hour-1]= 0;
-        LectureGroup l= c.lectures.getDataByKey(groupID);
-        l.inHour[hour-1]= false;
-        l.rooms[hour-1]= 0;
+        int courseID= (arr[hour-1]);
+        (arr[hour-1])= 0;
+        //CourseID c= courses.Find(courseID);
+        int groupID= data[hour-1];
+        data[hour-1]= 0;
+      //  LectureGroup l= courses.Find(courseID).lectures.getDataByKey(groupID);
+        courses.Find(courseID-1).lectures.getDataByKey(groupID).inHour[hour-1]= false;
+        courses.Find(courseID-1).lectures.getDataByKey(groupID).rooms[hour-1]= 0;
         for (int i = 0; i < HOURS; ++i) {
-            if (l.inHour[i])
+            if (courses.Find(courseID-1).lectures.getDataByKey(groupID).inHour[i])
                 return;
         }
 
-        c.lectures.remove(groupID);
+        courses.Find(courseID-1).lectures.remove(groupID);
 
     }
 
@@ -270,11 +274,11 @@ public:
         if (!roomsHash.member(roomID)){
             throw Failure();
         }
-        IntArray hourArray = roomsHash.getDataByKey(roomID);
-        if (*hourArray[hour] == 0){
+        int* hourArray = roomsHash.getDataByKey(roomID).arr;
+        if (hourArray[hour] == 0){
             throw Failure();
         }
-        int courseID = (*hourArray[hour-1]);
+        int courseID = (hourArray[hour-1]);
         CourseID id = courses.Find(courseID - 1);
         //this should never happen, but just in case.....
         if (id.lectures.getTreeSize() == 0 ){
