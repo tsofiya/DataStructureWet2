@@ -36,6 +36,12 @@ class ElementDoesNotExist : public ArrayExceptions {
     }
 };
 
+class InvalidInpu : public ArrayExceptions {
+    virtual const char *what() const throw() {
+        return "Wet2Exceptions: Invalid input.";
+    }
+};
+
 
 
 

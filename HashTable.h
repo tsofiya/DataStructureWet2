@@ -6,12 +6,15 @@
 #define WET2_HASHTABLE_H
 
 #include "BiDirectionalList.h"
+#include "List.h"
 #include "DynamicArray.h"
+#include "DynamicArrayExceptions.h"
 #include "Wet2Exceptions.h"
 
 template<class T>
 
 class HashTable{
+
 
 public:
     class KeyAndData{
@@ -19,7 +22,8 @@ public:
         int key;
         T data;
     public:
-        KeyAndData (const int& k, const T& d): key(k), data(d){}
+        KeyAndData (const int k, const T& d): key(k), data(d){}
+
 
         int getKey(){
             return key;
@@ -33,15 +37,15 @@ private:
 
     int tableSize;
     int insertedCounter;
-    BiDirectionalList<KeyAndData> * table;
+    List<KeyAndData> * table;
 
 public:
 
     HashTable (int ts=1) : tableSize(ts){
         insertedCounter=0;
-        table = new BiDirectionalList<KeyAndData>[tableSize];
+        table = new List<KeyAndData>[tableSize];
         for (int i=0; i<tableSize; i++){
-            table[i]=NULL;
+            table[i]= nullptr;
         }
     }
 
@@ -66,8 +70,9 @@ public:
 //todo: important: this function may cause the array to be ready to expand;
 //shedule2 will have ownership over this process, since it knows what M is defined to be!
     void insert (const int key, const T& data){
-        if (member(key))
+        if (member(key)){
             throw Failure();
+        }
         KeyAndData current = KeyAndData(key, data);
         int position = hashFunction(key);
         table[position].push(current);  //todo: test for Memory leak (maybe regular test will do)
@@ -78,20 +83,26 @@ public:
 
         int position=hashFunction(key);
         if (!table[position].getHead()){
-            throw KeyNotExist();
+            throw ElementDoesNotExist();
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-        KeyAndData current = *n;
+        auto iterator= table[position].getHead();
+        while (iterator != nullptr){
+        KeyAndData current = iterator->data;
             if (current.getKey()==key){
-                table[position].removeNode(n.getCurrent());
+                table[position].removeNode(iterator);
                 insertedCounter--;
                 return;
             }
-            ++n;
+
+            if (iterator->next == NULL) {
+                throw ElementDoesNotExist();
+            }
+            else {
+                iterator = (iterator->next);
+            }
         }
-        if (n.isEnd()){
-            throw KeyNotExist();
+        if (!iterator){
+            throw ElementDoesNotExist();
         }
     }
 
@@ -101,51 +112,60 @@ public:
         if (!table[position].getHead()){
             return false;
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-            KeyAndData current = *n;
-            if (current.getKey()==key){
+
+        auto iterator= table[position].getHead();
+        while (iterator) {
+            KeyAndData current = iterator->data;
+            if (current.getKey() == key) {
                 return true;
             }
-            ++n;
+            if (iterator->next == NULL) {
+                return false;
+            } else {
+                iterator = (iterator->next);
+            }
         }
-        if (!n.isEnd()){
+        if (!iterator){
             return false;
         }
-        return true;
     }
+
 
     T& getDataByKey (const int key){
 
         int position=hashFunction(key);
         if (!table[position].getHead()){
-            throw KeyNotExist();
+            throw ElementDoesNotExist();
         }
-        auto n= table[position].beginForward();
-        while (n.isEnd()){
-            KeyAndData current = *n;
-            if (current.getKey()==key){
+        auto iterator= table[position].getHead();
+        while (iterator){
+            KeyAndData current = iterator->data;
+            if (current.getKey()== key){
                 return current.getData();
             }
-            ++n;
+            if (iterator->next == NULL) {
+                throw ElementDoesNotExist();
+            } else {
+                iterator = (iterator->next);
+            }
         }
-        if (!n.isEnd()){
-            throw KeyNotExist(); //should be key not exist
+        if (!iterator){
+            throw ElementDoesNotExist(); //should be key not exist
         }
     }
 
-
-void expand (){
+    void expand (){
 
     int temp=tableSize*2;
-    BiDirectionalList<KeyAndData>* newTable = new BiDirectionalList<KeyAndData>[temp]; //may throw bad_alloc();
+    List<KeyAndData>* newTable = new List<KeyAndData>[temp]; //may throw bad_alloc();
     for (int i=0; i<temp; i++){
         newTable[i]=NULL;
     }
     for (int i=0; i<tableSize; i++){
-        newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+      //  newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+        newTable[i]=table[i];
     }
-    delete[]table; //todo: is this right? memory leak??
+    //delete[]table; //todo: is this right? memory leak??
     table=newTable;
     tableSize=temp;
 }
@@ -153,14 +173,15 @@ void expand (){
     void shrink(){
 
         int temp=tableSize/2;
-        BiDirectionalList<KeyAndData>* newTable = new BiDirectionalList<KeyAndData>[temp]; //may throw bad_alloc();
+        List<KeyAndData>* newTable = new List<KeyAndData>[temp]; //may throw bad_alloc();
         for (int i=0; i<temp; i++){
             newTable[i]=NULL;
         }
         for (int i=0; i<tableSize; i++){
-            newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+            //  newTable[i]= BiDirectionalList<KeyAndData>(table[i]);
+            newTable[i]=table[i];
         }
-        delete[]table; //todo: is this right? memory leak??
+        //delete[]table; //todo: is this right? memory leak??
         table=newTable;
         tableSize=temp;
     }
@@ -220,6 +241,8 @@ void expand (){
             std::cout << std::endl;
         }
     }
+
+
 
 };
 

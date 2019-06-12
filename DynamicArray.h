@@ -6,7 +6,7 @@
 #define WET2_DYNAMICARRAY_H
 
 #include <iostream>
-#include "Wet2Exceptions.h"
+#include "DynamicArrayExceptions.h"
 
 template<class T>
 
@@ -24,7 +24,7 @@ public:
             nullptr){
 
             if (capacity<1){
-                throw InvalidInput();
+                throw IllegalArgument();
             }
             myArray = new T [capacity];
             if (!myArray){
@@ -45,7 +45,7 @@ public:
             tempArray[i]=NULL;
         }
         for (int i=0; i<myCapacity; i++){
-            tempArray[i]= T (myArray[i]);
+            tempArray[i]= myArray[i];
         }
         delete[]myArray; //todo: is this right? memory leak??
         myArray=tempArray;

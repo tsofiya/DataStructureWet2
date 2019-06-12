@@ -1,4 +1,4 @@
-//
+
 // Created by tsofi on 05/06/2019.
 //
 
@@ -43,6 +43,7 @@ public:
 
 private:
     //check for correctness
+    //todo:
     int recFind(int id){
         if (groupsIDs[id]==id)
             return id;

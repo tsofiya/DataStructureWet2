@@ -1,3 +1,4 @@
+
 //
 // Created by tsofi on 07/06/2019.
 //
@@ -60,6 +61,10 @@ public:
         return recSumKBestKeys(root, &k);
     }
 
+    int getSize(){
+        return size;
+    }
+
 private:
     void recCopy(const Node* n){
         if (n==NULL)
@@ -74,10 +79,10 @@ private:
         if (*k==0 || n==NULL)
             return K();
 
-        K sumB= recSumKBestKeys(n->rightSon);
+        K sumB= recSumKBestKeys(n->rightSon, k);
         if (*k!=0){
             (*k)--;
-            return sumB+(n->key)+recSumKBestKeys(n->leftSon);
+            return sumB+(n->key)+recSumKBestKeys(n->leftSon, k);
         }
         return sumB;
     }
@@ -321,3 +326,4 @@ private:
 
 
 #endif //DATASTRUCTUREWET2_AVLCOUNTER_H
+
