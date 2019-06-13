@@ -1,0 +1,14 @@
+Init 2
+addRoom 5
+addRoom 10
+deleteRoom 10
+addLecture 2 1 10 2 5
+addLecture 1 5 5 1 30
+addLecture 2 3 5 2 20
+addRoom 6
+addLecture 2 1 6 5 5
+deleteLecture 5 6
+mergeCourses 1 2
+getAverageStudentsInCourse 2 5
+getAverageStudentsInCourse 1 5
+Quit
