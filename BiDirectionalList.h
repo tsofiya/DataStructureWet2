@@ -90,75 +90,71 @@ public:
 
     }
 
- /*
-    Node *push(const T &data) {
-        Node *n = new Node;
-        n->data = data;
-        n->previous=NULL;
-        n->next=head;
-        if (head){
-            head->previous=n;
-        }
-        head=n;
-        return n;
+    /*
+       Node *push(const T &data) {
+           Node *n = new Node;
+           n->data = data;
+           n->previous=NULL;
+           n->next=head;
+           if (head){
+               head->previous=n;
+           }
+           head=n;
+           return n;
+       }
+   */
+    /*
+       Node *removeNode(const Node *toRemove) {
+           if (toRemove == NULL) {
+               return NULL; //or throw exception?
+           }
+           if (toRemove->next) {
+               if (toRemove->previous) {
+                   (toRemove->next)->previous = toRemove->previous;
+                   (toRemove->previous)->next = toRemove->next;
+                   delete (toRemove);
+                   return head;
+               } else {
+                   head = toRemove->next;
+                   head->previous = NULL;
+                   delete (toRemove);
+                   return head;
+               }
+           }
+           if (!toRemove->next) {
+               if (toRemove->previous) {
+                   tail = (toRemove->previous);
+                   tail->next = NULL;
+                   delete (toRemove);
+                   return head;
+               } else { //if (!toRemove->previous)
+                   delete (toRemove);
+                   head = NULL;
+                   tail = NULL;
+                   return NULL;
+               }
+           }
+           return head;
+       }
+   */
 
-    }
+    Node *removeNode( Node *toRemove) {
+        if (toRemove == NULL){
+            return head;
+        }
 
-*/
- /*
-    Node *removeNode(const Node *toRemove) {
-
-        if (toRemove == NULL) {
-            return NULL; //or throw exception?
+        if (toRemove->previous == NULL){
+            head=(toRemove->next);
         }
-        if (toRemove->next) {
-            if (toRemove->previous) {
-                (toRemove->next)->previous = toRemove->previous;
-                (toRemove->previous)->next = toRemove->next;
-                delete (toRemove);
-                return head;
-            } else {
-                head = toRemove->next;
-                head->previous = NULL;
-                delete (toRemove);
-                return head;
-            }
+        if (toRemove->next!=NULL){
+            toRemove->next->previous=toRemove->previous;
         }
-        if (!toRemove->next) {
-            if (toRemove->previous) {
-                tail = (toRemove->previous);
-                tail->next = NULL;
-                delete (toRemove);
-                return head;
-            } else { //if (!toRemove->previous)
-                delete (toRemove);
-                head = NULL;
-                tail = NULL;
-                return NULL;
-            }
+        if (toRemove->previous!=NULL){
+            toRemove->previous->next = toRemove->next;
         }
+        delete(toRemove);
         return head;
     }
-
-*/
-
- Node *removeNode( Node *toRemove) {
-     if (toRemove == NULL){
-         return head;
-     }
-
-     if (toRemove->previous == NULL){
-         head=(toRemove->next);
-     }
-     if (toRemove->next!=NULL){
-         toRemove->next->previous=toRemove->previous;
-     }
-     if (toRemove->previous!=NULL){
-         toRemove->previous->next = toRemove->next;
-     }
-     delete(toRemove);
-    return head;
- }
 
     friend ostream &operator<<(ostream &os, BiDirectionalList<T> &list) {
         //os << "direction 1: " << std::endl;

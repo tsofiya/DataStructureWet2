@@ -186,17 +186,13 @@ public:
     }
 
     /*void printHashTable() {
-
         BiDirectionalList<KeyAndData> current_lst;
         Node<KeyAndData> *current_node;
         Node<KeyAndData> *temp;
-
         KeyAndData current_kad;
         int current_key;
         T current_data;
         printf("Key\t||\tData\n");
-
-
         for (int i = 0; i < tableSize; i++) {
             if (table[i].getHead()==NULL){
                 std::cout << "(Hash Cell " << i << "):";
@@ -206,7 +202,6 @@ public:
             }
             current_lst = table[i];
             current_node = table[i].getHead();
-
             current_kad = table[i].getHead()->data;
             current_key = current_kad.getKey();
             current_data = current_kad.getData();
@@ -220,7 +215,6 @@ public:
                 temp = current_node;
                 current_node = temp->next;
             }
-
             printf("=>End--\n");
         }
     }

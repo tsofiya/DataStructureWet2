@@ -30,16 +30,21 @@ public:
     }
 
     //what should I return here? correct this if necessary
-    T* Find(int id){
+    T& Find(int id){
         int grp= recFind(id);
-        T * t=groups+grp;
-        return t;
+        return groups[grp];
     }
 
     //Decision: when we implement T as ids and so, we will implement +=.
     void Union(int id1, int id2){
+        id1= recFind(id1);
+        id2= recFind(id2);
         groupsIDs[id1]= id2;
         groups[id2]+=groups[id1];
+    }
+
+    bool checkEqual (int id1, int id2){
+        return  (recFind(id1)==recFind(id2));
     }
 
 private:

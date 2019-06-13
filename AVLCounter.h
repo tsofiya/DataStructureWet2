@@ -1,4 +1,3 @@
-
 //
 // Created by tsofi on 07/06/2019.
 //
@@ -27,8 +26,21 @@ public:
         root = NULL;
     }
 
-    AVLCounter(const AVLCounter& other){
+    AVLCounter(const AVLCounter& other):size(0){
+        root = NULL;
         recCopy(other.root);
+    }
+
+    ~AVLCounter() {
+        deleteTree(root);
+    }
+
+    AVLCounter& operator=(const AVLCounter& other){
+        deleteTree(root);
+        root=NULL;
+        size=0;
+        recCopy(other.root);
+        return *this;
     }
 
 
@@ -58,6 +70,11 @@ public:
     }
 
     K sumKBestKeys(int k){
+        if (k ==0){
+            return K(0);
+        }
+        if (k>size)
+            k=size;
         return recSumKBestKeys(root, &k);
     }
 
@@ -65,7 +82,42 @@ public:
         return size;
     }
 
+    AVLCounter mergeTrees(const AVLCounter& other){
+        AVLCounter rTree(other);
+        rTree.addTreeToTree(*this);
+        return rTree;
+    }
+
+
 private:
+
+    void deleteTree(Node *n) {
+        if (n == NULL)
+            return;
+        deleteTree(n->leftSon);
+        deleteTree(n->rightSon);
+        delete (n);
+    }
+
+    void addTreeToTree(AVLCounter& tree){
+        if (tree.root==NULL) return;
+        addTreeToTreeRec(tree.root);
+    }
+
+    void addTreeToTreeRec(Node*n){
+        if (n==NULL)
+            return;
+        for (int i = 0; i < n->counter; ++i) {
+            insert(n->key);
+        }
+
+
+        if (n->rightSon!=NULL)
+            addTreeToTreeRec(n->rightSon);
+        if (n->leftSon!=NULL)
+            addTreeToTreeRec(n->leftSon);
+    }
+
     void recCopy(const Node* n){
         if (n==NULL)
             return;
@@ -73,18 +125,55 @@ private:
         recCopy(n->leftSon);
         recCopy(n->rightSon);
     }
+    Node* recGetByKey(Node *n, const K &key) {
+        if (n == NULL)
+            return NULL;
+        if (n->key == key) {
+            return n;
+        } else {
+            if (key < n->key) {
+                return recGetByKey(n->leftSon, key);
+            } else {
+                return recGetByKey(n->rightSon, key);
+            }
+        }
+    }
+
+    Node* getByKey(const K &key) {
+        return recGetByKey(root, key);
+    }
 
     //TODO: check for correctness.
     K recSumKBestKeys(Node* n, int* k){
         if (*k==0 || n==NULL)
-            return K();
+            return K(0);
+        if (n->rightSon==NULL){
+            K sumB(0);
+            if ((*k)>=n->counter) {
+                sumB = n->counter * n->key;
+                *k= *k-n->counter;
+            }
+            else {
+                int del= *k;
+                *k=0;
+                return n->key*del;
+            }
+            return sumB+recSumKBestKeys(n->rightSon, k);
+        }
 
         K sumB= recSumKBestKeys(n->rightSon, k);
-        if (*k!=0){
-            (*k)--;
-            return sumB+(n->key)+recSumKBestKeys(n->leftSon, k);
+        if (*k==0)
+            return sumB;
+        if (*k>=n->counter){
+            sumB+=(n->key*n->counter);
+            *k= *k-n->counter;
+            return sumB+recSumKBestKeys(n->leftSon, k);
         }
-        return sumB;
+
+        int del= *k;
+        *k=0;
+        return sumB+ n->key*del;
+
     }
 
     void recInsert(Node *in, Node *curr) {
@@ -206,6 +295,7 @@ private:
 
         if (curr->key==key){
             curr->counter++;
+            size++;
             return true;
         }
 
@@ -328,4 +418,3 @@ private:
 
 
 #endif //DATASTRUCTUREWET2_AVLCOUNTER_H
-
