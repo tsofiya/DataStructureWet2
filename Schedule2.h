@@ -6,7 +6,7 @@
 #define DATASTRUCTUREWET2_SCHEDULE2_H
 #define HOURS 10
 
-#include "AVLtree.h"
+#include "AVLTree.h"
 #include "UnionFind.h"
 #include "Wet2Exceptions.h"
 #include "HashTable.h"
