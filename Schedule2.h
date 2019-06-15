@@ -113,7 +113,7 @@ class Schedule2 {
 
         //    AVLtree<int, LectureGroup> lec(lectures.mergeTrees(other.lectures));
             lectures=lectures.mergeTrees(other.lectures);
-            bestGroups= bestGroups.mergeTrees(other.bestGroups);
+            bestGroups= bestGroups.mergeTrees(other.bestGroups);  //the memory leak may be here...
             //bestGroups= best;
 
             numStudent+=other.numStudent;

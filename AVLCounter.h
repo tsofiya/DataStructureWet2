@@ -33,6 +33,8 @@ public:
 
     ~AVLCounter() {
         deleteTree(root);
+      //  root=NULL; //this is my addition
+
     }
 
     AVLCounter& operator=(const AVLCounter& other){
@@ -89,7 +91,6 @@ public:
     }
 
 
-private:
 
     void deleteTree(Node *n) {
         if (n == NULL)
@@ -98,6 +99,7 @@ private:
         deleteTree(n->rightSon);
         delete (n);
     }
+private:
 
     void addTreeToTree(AVLCounter& tree){
         if (tree.root==NULL) return;
@@ -122,8 +124,8 @@ private:
         if (n==NULL)
             return;
         insert(n->key);
-        recCopy(n->leftSon);
         recCopy(n->rightSon);
+        recCopy(n->leftSon);
     }
     Node* recGetByKey(Node *n, const K &key) {
         if (n == NULL)
@@ -357,7 +359,7 @@ private:
                 delete (n);
                 root = NULL;
                 return;
-            }
+            } //so far no memory leak
         } else if (n->leftSon == NULL) {
             Node *temp = n->rightSon;
             n->rightSon = temp->rightSon;
@@ -370,7 +372,7 @@ private:
             n->leftSon = temp->leftSon;
             n->key = temp->key;
             delete (temp);
-        } else {
+        } else { //both of n's sons are NOT NULL
             Node *temp= findMostLeft(n->rightSon, n);
             n->key = K(temp->key);
             n->height = calcHeight(n);
@@ -385,6 +387,13 @@ private:
 
     Node* findMostLeft(Node* curr, Node* f){
         if (curr->leftSon==NULL){
+       //what if f->leftSon isn't NULL??
+            //this is an addition:
+            if (f->leftSon!=NULL){
+                if (curr->key != f->leftSon->key){ //case: curr is f's right son, not left son
+                    deleteTree(f->leftSon);
+                }
+            } //end
             f->leftSon= NULL;
             f->height= calcHeight(f);
             preformRotation(curr);

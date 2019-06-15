@@ -47,6 +47,7 @@ public:
 
     ~AVLtree() {
         deleteTree(root);
+        root=NULL; //this is my addition
     }
 
     void insert(const K &key, const T &data) {
@@ -231,7 +232,7 @@ private:
             n->key = temp->key;
             n->data = temp->data;
             delete (temp);
-        } else {
+        } else { //both aren't NULL
             Node *temp= findMostLeft(n->rightSon, n);
             n->key = temp->key;
             n->data = temp->data;
